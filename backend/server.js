@@ -16,7 +16,7 @@ app.use("/api/shopkeepers", shopkeepersRouter);
 app.use("/api/bills", billsRouter);
 app.use("/api/designs", designsRouter);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Backend server running on port ${PORT}`));
 app.get("/", (req, res) => {
   res.send("Shopkeeper API is running 🚀");
