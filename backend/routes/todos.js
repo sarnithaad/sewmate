@@ -11,7 +11,6 @@ router.post("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const { task, due_date, status = "pending" } = req.body;
 
-  // Basic validation
   if (isEmpty(task) || isEmpty(due_date)) {
     return res.status(400).json({ error: "Task and due date are required." });
   }
@@ -23,7 +22,7 @@ router.post("/", authenticate, async (req, res) => {
     );
     res.status(201).json({ message: "Todo added successfully", todoId: result.insertId });
   } catch (err) {
-    console.error("Error inserting todo:", err);
+    console.error("❌ Error inserting todo:", err);
     res.status(500).json({ error: "Database error while adding todo." });
   }
 });
@@ -41,12 +40,34 @@ router.get("/", authenticate, async (req, res) => {
     );
     res.json(todos);
   } catch (err) {
-    console.error("Error fetching todos:", err);
+    console.error("❌ Error fetching todos:", err);
     res.status(500).json({ error: "Database error while fetching todos." });
   }
 });
 
-// ✅ (Optional) Update todo status
+// ✅ Get a single todo by ID (Fixes GET /api/todos/:id)
+router.get("/:id", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const todoId = req.params.id;
+
+  try {
+    const [todos] = await db.execute(
+      `SELECT id, task, due_date, status, created_at
+       FROM todos
+       WHERE id = ? AND shopkeeper_id = ?`,
+      [todoId, shopkeeperId]
+    );
+    if (todos.length === 0) {
+      return res.status(404).json({ error: "Todo not found or unauthorized." });
+    }
+    res.json(todos[0]);
+  } catch (err) {
+    console.error("❌ Error fetching single todo:", err);
+    res.status(500).json({ error: "Database error while fetching todo." });
+  }
+});
+
+// ✅ Update todo status
 router.patch("/:id/status", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const todoId = req.params.id;
@@ -62,14 +83,14 @@ router.patch("/:id/status", authenticate, async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Todo not found or unauthorized." });
     }
-    res.json({ message: "Status updated successfully" });
+    res.json({ message: "✅ Status updated successfully" });
   } catch (err) {
-    console.error("Error updating status:", err);
+    console.error("❌ Error updating status:", err);
     res.status(500).json({ error: "Database error while updating status." });
   }
 });
 
-// ✅ (Optional) Delete todo
+// ✅ Delete todo
 router.delete("/:id", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const todoId = req.params.id;
@@ -82,9 +103,9 @@ router.delete("/:id", authenticate, async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: "Todo not found or unauthorized." });
     }
-    res.json({ message: "Todo deleted successfully" });
+    res.json({ message: "✅ Todo deleted successfully" });
   } catch (err) {
-    console.error("Error deleting todo:", err);
+    console.error("❌ Error deleting todo:", err);
     res.status(500).json({ error: "Database error while deleting todo." });
   }
 });
