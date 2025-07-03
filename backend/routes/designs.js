@@ -1,42 +1,84 @@
+// routes/designs.js
 const express = require("express");
-const multer = require("multer");
-const db = require("../db");
 const router = express.Router();
+const db = require("../db");
+const authenticate = require("../middleware/auth");
 
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function(req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-const upload = multer({ storage: storage });
-
-router.post("/upload", upload.single('image'), async (req, res) => {
-  const { shopkeeper_id, dress_type, part } = req.body;
-  const image_url = `/uploads/${req.file.filename}`;
+// Add a new design
+router.post("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const { name, description, image_url } = req.body;
   try {
-    await db.execute(
-      "INSERT INTO designs (shopkeeper_id, dress_type, part, image_url) VALUES (?, ?, ?, ?)",
-      [shopkeeper_id, dress_type, part, image_url]
+    const [result] = await db.execute(
+      "INSERT INTO designs (shopkeeper_id, name, description, image_url) VALUES (?, ?, ?, ?)",
+      [shopkeeperId, name, description, image_url]
     );
-    res.json({ message: "Image uploaded", image_url });
+    res.json({ message: "Design added", designId: result.insertId });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Database error" });
   }
 });
 
-router.get("/:shopkeeper_id/:dress_type/:part", async (req, res) => {
-  const { shopkeeper_id, dress_type, part } = req.params;
+// Get all designs for the logged-in shopkeeper
+router.get("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  try {
+    const [designs] = await db.execute(
+      "SELECT * FROM designs WHERE shopkeeper_id = ? ORDER BY created_at DESC",
+      [shopkeeperId]
+    );
+    res.json(designs);
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Get a single design by ID
+router.get("/:id", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const designId = req.params.id;
   try {
     const [rows] = await db.execute(
-      "SELECT * FROM designs WHERE shopkeeper_id = ? AND dress_type = ? AND part = ?",
-      [shopkeeper_id, dress_type, part]
+      "SELECT * FROM designs WHERE id = ? AND shopkeeper_id = ?",
+      [designId, shopkeeperId]
     );
-    res.json(rows);
+    if (rows.length === 0) return res.status(404).json({ error: "Design not found" });
+    res.json(rows[0]);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Update a design
+router.put("/:id", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const designId = req.params.id;
+  const { name, description, image_url } = req.body;
+  try {
+    const [result] = await db.execute(
+      "UPDATE designs SET name = ?, description = ?, image_url = ? WHERE id = ? AND shopkeeper_id = ?",
+      [name, description, image_url, designId, shopkeeperId]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Design not found or not yours" });
+    res.json({ message: "Design updated" });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Delete a design
+router.delete("/:id", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const designId = req.params.id;
+  try {
+    const [result] = await db.execute(
+      "DELETE FROM designs WHERE id = ? AND shopkeeper_id = ?",
+      [designId, shopkeeperId]
+    );
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Design not found or not yours" });
+    res.json({ message: "Design deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
   }
 });
 
