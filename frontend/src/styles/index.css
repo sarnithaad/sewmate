@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom base styles (optional) */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-gray-800;
+  }
+
+  a {
+    @apply text-blue-600 hover:underline;
+  }
+}
+
+/* Custom component styles (optional) */
+@layer components {
+  .btn-primary {
+    @apply bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition;
+  }
+
+  .card {
+    @apply bg-white shadow rounded p-4;
+  }
+}
+
+/* Utility overrides or extensions (optional) */
+/* Example: Responsive text truncation */
+@layer utilities {
+  .text-ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
