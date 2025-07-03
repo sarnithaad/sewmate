@@ -2,11 +2,11 @@ const mysql = require("mysql2/promise");
 
 // Load environment variables with fallbacks
 const {
-  DB_HOST = "localhost",
-  DB_PORT = 3306,
-  DB_USER = "root",
-  DB_PASSWORD = "",
-  DB_NAME = "sewmate",
+  DB_HOST = "mysql-2003-sharnithadhandapani-d3a8.c.aivencloud.com",
+  DB_PORT = 28177,
+  DB_USER = "avnadmin",
+  DB_PASSWORD = "AVNS_K6mIDQVbua-l8d_JvPy",
+  DB_NAME = "defaultdb",
   DB_SSL = "false" // "true" if using Aiven or any SSL-required service
 } = process.env;
 
