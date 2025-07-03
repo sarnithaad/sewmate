@@ -14,30 +14,30 @@ export default function ShopkeeperLogin() {
   };
 
   const handleSubmit = async e => {
-    e.preventDefault();
-    setError("");
-    try {
-      const res = await fetch(
-  `${process.env.REACT_APP_API_URL}/api/shopkeepers/login`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(form)
-  }
-));
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-      } else {
-        // Save token and shopkeeper info as needed (e.g., in localStorage)
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("shopkeeper", JSON.stringify(data.shopkeeper));
-        navigate("/dashboard"); // Change to your main page after login
+  e.preventDefault();
+  setError("");
+  try {
+    const res = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/shopkeepers/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
       }
-    } catch {
-      setError("Network error. Please try again.");
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error || "Login failed");
+    } else {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("shopkeeper", JSON.stringify(data.shopkeeper));
+      navigate("/dashboard");
     }
-  };
+  } catch {
+    setError("Network error. Please try again.");
+  }
+};
+
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded shadow">
