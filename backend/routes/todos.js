@@ -1,22 +1,35 @@
+// routes/todos.js
 const express = require("express");
-const db = require("../db");
 const router = express.Router();
+const db = require("../db");
+const authenticate = require("../middleware/auth");
 
-router.get("/:shopkeeper_id", async (req, res) => {
-  const { shopkeeper_id } = req.params;
+// Add a new todo/task
+router.post("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const { task, due_date, status } = req.body;
   try {
-    const [rows] = await db.execute(
-      `SELECT t.*, b.bill_number, b.status, c.name as customer_name
-       FROM todos t
-       JOIN bills b ON t.bill_id = b.id
-       JOIN customers c ON b.customer_id = c.id
-       WHERE t.shopkeeper_id = ? AND t.completed = FALSE
-       ORDER BY t.due_date ASC`,
-      [shopkeeper_id]
+    const [result] = await db.execute(
+      "INSERT INTO todos (shopkeeper_id, task, due_date, status) VALUES (?, ?, ?, ?)",
+      [shopkeeperId, task, due_date, status || "pending"]
     );
-    res.json(rows);
+    res.json({ message: "Todo added", todoId: result.insertId });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+// Get all todos for the logged-in shopkeeper
+router.get("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  try {
+    const [todos] = await db.execute(
+      "SELECT * FROM todos WHERE shopkeeper_id = ?",
+      [shopkeeperId]
+    );
+    res.json(todos);
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
   }
 });
 
