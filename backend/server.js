@@ -29,10 +29,5 @@ app.get('/api', (req, res) => {
   res.send('SewMate API is running!');
 });
 
-// Catch-all handler: for any request that doesn't match above, serve React's index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Backend server running on port ${PORT}`));
