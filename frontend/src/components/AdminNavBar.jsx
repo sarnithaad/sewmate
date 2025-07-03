@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 const navs = [
+  {name: "Dashboard", path:"/ShopkeeperDashboard"},
   { name: "Customer List", path: "/customers" },
   { name: "Revenue", path: "/revenue" },
   { name: "New Bill", path: "/new-bill" },
