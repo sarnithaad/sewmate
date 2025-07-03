@@ -1,30 +1,35 @@
+// routes/customers.js
 const express = require("express");
-const db = require("../db");
 const router = express.Router();
+const db = require("../db");
+const authenticate = require("../middleware/auth");
 
-router.post("/", async (req, res) => {
-  const { shopkeeper_id, name, mobile, order_date, due_date, bill_value } = req.body;
+// Add a new customer
+router.post("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const { name, mobile, address } = req.body;
   try {
-    await db.execute(
-      "INSERT INTO customers (shopkeeper_id, name, mobile, order_date, due_date, bill_value) VALUES (?, ?, ?, ?, ?, ?)",
-      [shopkeeper_id, name, mobile, order_date, due_date, bill_value]
+    const [result] = await db.execute(
+      "INSERT INTO customers (shopkeeper_id, name, mobile, address) VALUES (?, ?, ?, ?)",
+      [shopkeeperId, name, mobile, address]
     );
-    res.status(201).json({ message: "Customer added" });
+    res.json({ message: "Customer added", customerId: result.insertId });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: "Database error" });
   }
 });
 
-router.get("/:shopkeeper_id", async (req, res) => {
-  const { shopkeeper_id } = req.params;
+// Get all customers for the logged-in shopkeeper
+router.get("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
   try {
-    const [rows] = await db.execute(
+    const [customers] = await db.execute(
       "SELECT * FROM customers WHERE shopkeeper_id = ?",
-      [shopkeeper_id]
+      [shopkeeperId]
     );
-    res.json(rows);
+    res.json(customers);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: "Database error" });
   }
 });
 
