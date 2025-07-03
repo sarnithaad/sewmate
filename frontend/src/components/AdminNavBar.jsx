@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 const navs = [
-  {name: "Dashboard", path:"/ShopkeeperDashboard"},
+  { name: "Dashboard", path: "/ShopkeeperDashboard" },
   { name: "Customer List", path: "/customers" },
   { name: "Revenue", path: "/revenue" },
   { name: "New Bill", path: "/new-bill" },
@@ -13,20 +13,23 @@ const navs = [
 
 export default function AdminNavBar() {
   return (
-    <nav className="flex space-x-2 bg-blue-100 p-3">
-      {navs.map(nav => (
-        <NavLink
-          key={nav.name}
-          to={nav.path}
-          className={({ isActive }) =>
-            isActive
-              ? "bg-blue-500 text-white px-4 py-2 rounded"
-              : "hover:bg-blue-200 px-4 py-2 rounded"
-          }
-        >
-          {nav.name}
-        </NavLink>
-      ))}
+    <nav className="w-full bg-white shadow-md px-4 py-3 md:px-8">
+      <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+        {navs.map((nav) => (
+          <NavLink
+            key={nav.name}
+            to={nav.path}
+            className={({ isActive }) =>
+              `px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 
+              ${isActive
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-blue-700 hover:bg-blue-100 hover:text-blue-900"}`
+            }
+          >
+            {nav.name}
+          </NavLink>
+        ))}
+      </div>
     </nav>
   );
 }
