@@ -138,19 +138,17 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Get bills by specific due date (supports ?date=YYYY-MM-DD)
-router.get("/by-date", authenticate, async (req, res) => {
+// GET /api/bills/by-date/:date
+router.get("/by-date/:date", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
-  const { date } = req.query;
-
-  if (!date) return res.status(400).json({ error: "Missing date parameter" });
+  const date = req.params.date;
 
   try {
     const [bills] = await db.execute(
       `SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ?`,
       [shopkeeperId, date]
     );
-    res.json(bills);
+    res.json(bills); // ✅ not { bills }, just return the array
   } catch (err) {
     console.error("❌ Date-based fetch error:", err);
     res.status(500).json({ error: "Failed to load bills for date" });
