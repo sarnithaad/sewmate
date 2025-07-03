@@ -74,7 +74,32 @@ router.get("/", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Get delivery stats for dashboard (overdue, today, upcoming)
+// ✅ Get a single bill by ID (for route /api/bills/:id)
+router.get("/:id", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const billId = req.params.id;
+
+  try {
+    const [bills] = await db.execute(
+      `SELECT b.*, d.measurements_json, d.extras_json 
+       FROM bills b 
+       LEFT JOIN bill_details d ON b.id = d.bill_id 
+       WHERE b.id = ? AND b.shopkeeper_id = ?`,
+      [billId, shopkeeperId]
+    );
+
+    if (bills.length === 0) {
+      return res.status(404).json({ error: "Bill not found" });
+    }
+
+    res.json(bills[0]);
+  } catch (err) {
+    console.error("❌ Single bill fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch bill" });
+  }
+});
+
+// ✅ Dashboard stats (overdue, today, upcoming)
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
@@ -113,10 +138,13 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Get bills by specific due date
-router.get("/by-date/:date", authenticate, async (req, res) => {
+// ✅ Get bills by specific due date (supports ?date=YYYY-MM-DD)
+router.get("/by-date", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
-  const date = req.params.date;
+  const { date } = req.query;
+
+  if (!date) return res.status(400).json({ error: "Missing date parameter" });
+
   try {
     const [bills] = await db.execute(
       `SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ?`,
@@ -157,7 +185,7 @@ router.delete("/delivered/:id", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Overdue bills: not packed 1 day before due
+// ✅ Overdue: Bills not packed 1 day before due
 router.get("/overdue", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const todayStr = new Date().toISOString().split("T")[0];
