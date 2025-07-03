@@ -3,15 +3,30 @@ import React, { useEffect, useState } from "react";
 export default function ShopkeeperDashboard() {
   const [deliveries, setDeliveries] = useState({ overdue: [], today: [], upcoming: [] });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("/api/bills/dashboard-deliveries", {
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/dashboard-deliveries`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(async res => {
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          throw new Error("Server error: invalid response");
+        }
+        if (!res.ok) throw new Error(data.error || "Failed to fetch deliveries");
+        return data;
+      })
       .then(data => {
         setDeliveries(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setDeliveries({ overdue: [], today: [], upcoming: [] });
+        setError(err.message);
         setLoading(false);
       });
   }, []);
@@ -21,6 +36,11 @@ export default function ShopkeeperDashboard() {
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4">Delivery Dashboard</h2>
+      {error && (
+        <div className="mb-4 text-red-600 bg-red-50 border border-red-200 rounded p-2">
+          {error}
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <DeliveryList title="Overdue Deliveries" bills={deliveries.overdue} color="red" />
         <DeliveryList title="Today's Deliveries" bills={deliveries.today} color="green" />
