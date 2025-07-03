@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
+import Calendar from "react-calendar";
+import 'react-calendar/dist/Calendar.css';
 
 export default function ShopkeeperDashboard() {
   const [deliveries, setDeliveries] = useState({ overdue: [], today: [], upcoming: [] });
+  const [selectedDateBills, setSelectedDateBills] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
     fetch(`${process.env.REACT_APP_API_URL}/api/bills/dashboard-deliveries`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -31,36 +36,86 @@ export default function ShopkeeperDashboard() {
       });
   }, []);
 
-  if (loading) return <div className="p-4">Loading dashboard...</div>;
+  useEffect(() => {
+    // Fetch deliveries for selected date
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date?date=${selectedDate.toISOString().split("T")[0]}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(async res => {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to fetch selected date data");
+        setSelectedDateBills(data.bills || []);
+      })
+      .catch(() => setSelectedDateBills([]));
+  }, [selectedDate]);
+
+  if (loading) return <div className="p-6 text-lg">Loading dashboard...</div>;
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Delivery Dashboard</h2>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h2 className="text-3xl font-bold text-blue-700 mb-6">Delivery Dashboard</h2>
+
       {error && (
-        <div className="mb-4 text-red-600 bg-red-50 border border-red-200 rounded p-2">
-          {error}
+        <div className="mb-4 text-red-700 bg-red-100 border border-red-300 p-3 rounded">
+          ❌ {error}
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <DeliveryList title="Overdue Deliveries" bills={deliveries.overdue} color="red" />
-        <DeliveryList title="Today's Deliveries" bills={deliveries.today} color="green" />
-        <DeliveryList title="Next 2 Days" bills={deliveries.upcoming} color="blue" />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <DeliveryList title="🚨 Overdue Deliveries" bills={deliveries.overdue} color="red" />
+        <DeliveryList title="📦 Today's Deliveries" bills={deliveries.today} color="green" />
+        <DeliveryList title="📅 Upcoming (Next 2 Days)" bills={deliveries.upcoming} color="blue" />
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-md mt-8">
+        <h3 className="text-xl font-semibold mb-4 text-indigo-600">📌 View Deliveries by Date</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Calendar
+            onChange={setSelectedDate}
+            value={selectedDate}
+            className="rounded shadow-md"
+          />
+          <div>
+            <h4 className="text-lg font-semibold mb-2 text-gray-700">
+              Deliveries on {selectedDate.toDateString()}:
+            </h4>
+            {selectedDateBills.length === 0 ? (
+              <p className="text-gray-500">No deliveries for this date.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200">
+                {selectedDateBills.map(bill => (
+                  <li key={bill.id} className="py-2">
+                    <div className="font-medium">{bill.customer_name}</div>
+                    <div className="text-sm text-gray-600">Value: ₹{bill.total_value}</div>
+                    <div className="text-sm text-gray-600">Due: {bill.due_date}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 function DeliveryList({ title, bills, color }) {
+  const bgColor = {
+    red: "bg-red-50 border-red-500 text-red-700",
+    green: "bg-green-50 border-green-500 text-green-700",
+    blue: "bg-blue-50 border-blue-500 text-blue-700"
+  }[color];
+
   return (
-    <div className={`bg-${color}-50 border-l-4 border-${color}-500 p-4 rounded`}>
-      <h3 className={`text-${color}-700 font-semibold mb-2`}>{title}</h3>
+    <div className={`border-l-4 p-4 rounded shadow-sm ${bgColor}`}>
+      <h3 className="font-bold text-lg mb-2">{title}</h3>
       {bills.length === 0 ? (
-        <div className="text-gray-500">No deliveries</div>
+        <p className="text-gray-500">No deliveries</p>
       ) : (
         <ul className="space-y-2">
           {bills.map(bill => (
-            <li key={bill.id} className="border-b pb-1">
-              <div className="font-bold">{bill.customer_name}</div>
+            <li key={bill.id} className="border-b pb-1 text-sm">
+              <div className="font-semibold">{bill.customer_name}</div>
               <div>Due: {bill.due_date}</div>
               <div>Value: ₹{bill.total_value}</div>
             </li>
