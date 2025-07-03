@@ -1,4 +1,3 @@
-// src/components/NewBill.jsx
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import PrintableBill from "./PrintableBill";
@@ -11,22 +10,10 @@ const dressTypes = [
 ];
 
 const measurementsList = {
-  Chudidhar: [
-    "full length", "shoulder", "front neck", "back neck", "upper chest", "middle chest", "hip", "seat",
-    "sleeve length", "sleeve width", "upper arm", "lower arm", "pant length", "pant knee", "pant ankle"
-  ],
-  Blouse: [
-    "dart length", "front neck", "back length", "back neck", "shoulder", "upper chest", "middle chest", "hip",
-    "sleeve length", "sleeve width", "upper arm", "lower arm"
-  ],
-  Frock: [
-    "skirt length", "dart length", "front neck", "back length", "back neck", "shoulder", "upper chest", "middle chest", "hip",
-    "seat", "sleeve length", "sleeve width", "upper arm", "lower arm"
-  ],
-  Lehanga: [
-    "skirt length", "dart length", "front neck", "back length", "back neck", "shoulder", "upper chest", "middle chest", "hip",
-    "seat", "sleeve length", "sleeve width", "upper arm", "lower arm"
-  ]
+  Chudidhar: [/* ... */],
+  Blouse: [/* ... */],
+  Frock: [/* ... */],
+  Lehanga: [/* ... */]
 };
 
 export default function NewBill() {
@@ -42,8 +29,9 @@ export default function NewBill() {
     total_value: 0,
   });
   const [showPrint, setShowPrint] = useState(false);
-
+  const [msg, setMsg] = useState("");
   const printRef = useRef();
+
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     documentTitle: `SewMate_Bill_${bill.bill_number}`,
@@ -62,22 +50,53 @@ export default function NewBill() {
           }
         }
       };
-      // Recalculate total
       updated.total_value = Object.values(updated.measurements)
         .reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0);
       return updated;
     });
   };
 
-  // Handle form submission (could POST to backend here)
-  const handleSubmit = e => {
+  // Handle form submission: POST to backend and show print preview
+  const handleSubmit = async e => {
     e.preventDefault();
-    setShowPrint(true);
+    setMsg("");
+    // Get shopkeeper_id from localStorage
+    const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
+    const shopkeeper_id = shopkeeper.id;
+    if (!shopkeeper_id) {
+      setMsg("Shopkeeper not found.");
+      return;
+    }
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...bill, shopkeeper_id }),
+      });
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        setMsg("Server error: invalid response");
+        return;
+      }
+      if (!res.ok) {
+        setMsg(data.error || "Failed to save bill");
+        return;
+      }
+      setMsg("Bill saved successfully!");
+      setShowPrint(true);
+      // Optionally, set bill_number from backend response if it's generated there
+      // setBill(b => ({ ...b, bill_number: data.bill_number }));
+    } catch (err) {
+      setMsg("Network error. Please try again.");
+    }
   };
 
   return (
     <div className="p-4">
       <form className="space-y-2" onSubmit={handleSubmit}>
+        {/* ... all your form fields ... */}
         <input
           type="text"
           placeholder="Customer Name"
@@ -86,69 +105,12 @@ export default function NewBill() {
           onChange={e => setBill(b => ({ ...b, customer_name: e.target.value }))}
           required
         />
-        <input
-          type="text"
-          placeholder="Mobile"
-          className="border p-1 rounded"
-          value={bill.mobile}
-          onChange={e => setBill(b => ({ ...b, mobile: e.target.value }))}
-          required
-        />
-        <select
-          value={bill.dress_type}
-          onChange={e => setBill(b => ({ ...b, dress_type: e.target.value }))}
-          className="border p-1 rounded"
-        >
-          {dressTypes.map(dt => (
-            <option key={dt.value} value={dt.value}>{dt.label}</option>
-          ))}
-        </select>
-        <input
-          type="date"
-          className="border p-1 rounded"
-          value={bill.order_date}
-          onChange={e => setBill(b => ({ ...b, order_date: e.target.value }))}
-          required
-        />
-        <input
-          type="date"
-          className="border p-1 rounded"
-          value={bill.due_date}
-          onChange={e => setBill(b => ({ ...b, due_date: e.target.value }))}
-          required
-        />
-        <div className="border p-2 rounded">
-          <div className="font-semibold mb-1">Measurements & Price</div>
-          {measurementsList[bill.dress_type].map(m => (
-            <div key={m} className="flex gap-2 items-center mb-1">
-              <label className="w-40">{m}</label>
-              <input
-                type="text"
-                placeholder="Measurement"
-                className="border p-1 rounded"
-                value={bill.measurements[m]?.value || ""}
-                onChange={e => handleMeasurementChange(m, "value", e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Price"
-                className="border p-1 rounded"
-                value={bill.measurements[m]?.price || ""}
-                onChange={e => handleMeasurementChange(m, "price", e.target.value)}
-              />
-            </div>
-          ))}
-        </div>
-        <textarea
-          placeholder="Others"
-          className="border p-2 w-full rounded"
-          value={bill.others}
-          onChange={e => setBill(b => ({ ...b, others: e.target.value }))}
-        />
+        {/* ... other fields ... */}
         <div className="font-bold">Total: ₹{bill.total_value}</div>
         <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
           Save & Show Print Preview
         </button>
+        {msg && <div className="mt-2 text-blue-600">{msg}</div>}
       </form>
 
       {showPrint && (
