@@ -3,25 +3,55 @@ import StatusDropdown from "./Shared/StatusDropdown";
 
 export default function BillStatus() {
   const [bills, setBills] = useState([]);
+  const [error, setError] = useState("");
+
+  // Get shopkeeper ID from localStorage
+  const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
+  const shopkeeperId = shopkeeper.id;
+
   useEffect(() => {
-    fetch("/api/bills/1") // Replace 1 with dynamic shopkeeper_id
-      .then(res => res.json())
-      .then(setBills);
-  }, []);
+    if (!shopkeeperId) {
+      setError("Shopkeeper not found.");
+      return;
+    }
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/${shopkeeperId}`)
+      .then(async res => {
+        if (!res.ok) {
+          let msg = "Failed to fetch bills";
+          try { msg = (await res.json()).error || msg; } catch {}
+          throw new Error(msg);
+        }
+        return res.json();
+      })
+      .then(setBills)
+      .catch(err => setError(err.message || "Error loading bills"));
+  }, [shopkeeperId]);
 
   const handleStatusChange = async (billId, newStatus) => {
     const status_date = new Date().toISOString().slice(0, 10);
-    await fetch("/api/bills/status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bill_id: billId, status: newStatus, status_date }),
-    });
-    setBills(bills.map(b => b.id === billId ? { ...b, status: newStatus } : b));
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bill_id: billId, status: newStatus, status_date }),
+      });
+      if (!res.ok) {
+        let msg = "Failed to update status";
+        try { msg = (await res.json()).error || msg; } catch {}
+        throw new Error(msg);
+      }
+      setBills(bills =>
+        bills.map(b => b.id === billId ? { ...b, status: newStatus, status_date } : b)
+      );
+    } catch (err) {
+      setError(err.message || "Error updating status");
+    }
   };
 
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-2">Bill Status</h2>
+      {error && <div className="text-red-600 mb-2">{error}</div>}
       <table className="min-w-full border">
         <thead>
           <tr>
