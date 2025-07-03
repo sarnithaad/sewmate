@@ -4,58 +4,65 @@ export default function DesignUpload({ dressType, part }) {
   const [file, setFile] = useState(null);
   const [msg, setMsg] = useState("");
   const [msgType, setMsgType] = useState(""); // 'success' or 'error'
+  const [uploading, setUploading] = useState(false);
 
-  const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
-  const shopkeeperId = shopkeeper.id;
+  const token = localStorage.getItem("token");
 
-  const handleUpload = async e => {
+  const handleUpload = async (e) => {
     e.preventDefault();
     setMsg("");
+    setMsgType("");
 
     if (!file) {
-      setMsg("❌ Please select a file.");
+      setMsg("❌ Please select an image file.");
       setMsgType("error");
       return;
     }
 
-    if (!shopkeeperId) {
-      setMsg("❌ Shopkeeper not found.");
+    if (!token) {
+      setMsg("❌ Unauthorized: Please log in again.");
       setMsgType("error");
       return;
     }
 
     const formData = new FormData();
     formData.append("image", file);
-    formData.append("shopkeeper_id", shopkeeperId);
     formData.append("dress_type", dressType);
     formData.append("part", part);
 
     try {
+      setUploading(true);
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/designs/upload`, {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       let data;
       try {
         data = await res.json();
       } catch {
-        setMsg("❌ Server error: invalid response");
+        setMsg("❌ Server error: Invalid response format.");
         setMsgType("error");
         return;
       }
 
       if (!res.ok) {
-        setMsg(`❌ ${data.error || "Upload failed"}`);
+        setMsg(`❌ ${data.error || "Upload failed."}`);
         setMsgType("error");
       } else {
         setMsg(`✅ ${data.message || "Upload successful!"}`);
         setMsgType("success");
-        setFile(null); // reset file
+        setFile(null);
+        document.querySelector("input[type=file]").value = ""; // Reset input
       }
     } catch (err) {
       setMsg("❌ Network error. Please try again.");
       setMsgType("error");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -69,7 +76,7 @@ export default function DesignUpload({ dressType, part }) {
         <input
           type="file"
           accept="image/*"
-          onChange={e => setFile(e.target.files[0])}
+          onChange={(e) => setFile(e.target.files[0])}
           className="block border rounded p-2 text-sm"
         />
         {file && (
@@ -79,9 +86,14 @@ export default function DesignUpload({ dressType, part }) {
 
       <button
         type="submit"
-        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm"
+        disabled={uploading}
+        className={`px-4 py-2 rounded text-sm text-white ${
+          uploading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-600 hover:bg-green-700"
+        }`}
       >
-        📤 Upload
+        {uploading ? "Uploading..." : "📤 Upload"}
       </button>
 
       {msg && (
