@@ -1,5 +1,6 @@
-// src/components/PrintableBill.jsx
 import React, { forwardRef } from "react";
+
+const formatDate = date => date ? new Date(date).toLocaleDateString() : "-";
 
 const PrintableBill = forwardRef(({ bill }, ref) => (
   <div ref={ref} className="p-6 min-w-[350px] max-w-[600px] mx-auto font-sans">
@@ -9,8 +10,8 @@ const PrintableBill = forwardRef(({ bill }, ref) => (
     <div><strong>Customer:</strong> {bill.customer_name}</div>
     <div><strong>Mobile:</strong> {bill.mobile}</div>
     <div><strong>Dress Type:</strong> {bill.dress_type}</div>
-    <div><strong>Order Date:</strong> {bill.order_date}</div>
-    <div><strong>Due Date:</strong> {bill.due_date}</div>
+    <div><strong>Order Date:</strong> {formatDate(bill.order_date)}</div>
+    <div><strong>Due Date:</strong> {formatDate(bill.due_date)}</div>
     <div className="mt-2"><strong>Measurements & Price:</strong></div>
     <table className="w-full border mt-1 mb-2 text-sm">
       <thead>
@@ -31,7 +32,9 @@ const PrintableBill = forwardRef(({ bill }, ref) => (
       </tbody>
     </table>
     <div><strong>Others:</strong> {bill.others || "-"}</div>
-    <div className="mt-2 text-lg font-bold">Total: ₹{bill.total_value}</div>
+    <div className="mt-2 text-lg font-bold">
+      Total: ₹{Number(bill.total_value).toLocaleString("en-IN")}
+    </div>
   </div>
 ));
 
