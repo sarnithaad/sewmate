@@ -22,7 +22,6 @@ router.post("/", authenticate, async (req, res) => {
   await conn.beginTransaction();
 
   try {
-    // 1. Insert bill
     const [billResult] = await conn.execute(
       `INSERT INTO bills 
         (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status) 
@@ -41,7 +40,6 @@ router.post("/", authenticate, async (req, res) => {
 
     const billId = billResult.insertId;
 
-    // 2. Store bill details
     await conn.execute(
       `INSERT INTO bill_details (bill_id, measurements_json, extras_json) VALUES (?, ?, ?)`,
       [billId, JSON.stringify(measurements), JSON.stringify(extras)]
@@ -80,8 +78,10 @@ router.get("/", authenticate, async (req, res) => {
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
-  const next2Str = new Date(today.setDate(today.getDate() + 2)).toISOString().slice(0, 10);
+  const todayStr = today.toISOString().split("T")[0];
+  const next2 = new Date();
+  next2.setDate(today.getDate() + 2);
+  const next2Str = next2.toISOString().split("T")[0];
 
   try {
     const [overdue] = await db.execute(
@@ -148,14 +148,8 @@ router.post("/status", authenticate, async (req, res) => {
 router.delete("/delivered/:id", authenticate, async (req, res) => {
   const billId = req.params.id;
   try {
-    await db.execute(
-      `DELETE FROM bills WHERE id = ? AND status = 'Delivered'`,
-      [billId]
-    );
-    await db.execute(
-      `DELETE FROM bill_details WHERE bill_id = ?`,
-      [billId]
-    );
+    await db.execute(`DELETE FROM bills WHERE id = ? AND status = 'Delivered'`, [billId]);
+    await db.execute(`DELETE FROM bill_details WHERE bill_id = ?`, [billId]);
     res.json({ message: "✅ Delivered bill deleted" });
   } catch (err) {
     console.error("❌ Deletion error:", err);
@@ -163,10 +157,10 @@ router.delete("/delivered/:id", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Overdue: Bills not packed 1 day before due
-router.get("/overdue/:shopkeeperId", async (req, res) => {
-  const shopkeeperId = req.params.shopkeeperId;
-  const todayStr = new Date().toISOString().slice(0, 10);
+// ✅ Overdue bills: not packed 1 day before due
+router.get("/overdue", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const todayStr = new Date().toISOString().split("T")[0];
   try {
     const [rows] = await db.execute(
       `SELECT * FROM bills 
