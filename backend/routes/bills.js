@@ -1,50 +1,53 @@
 const express = require("express");
-const db = require("../db");
 const router = express.Router();
+const authenticate = require("../middleware/auth");
 
-router.post("/", async (req, res) => {
-  const { shopkeeper_id, customer_id, bill_number, dress_type, order_date, due_date, total_value, details, others } = req.body;
-  try {
-    await db.execute(
-      "INSERT INTO bills (shopkeeper_id, customer_id, bill_number, dress_type, order_date, due_date, total_value, details, others) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [shopkeeper_id, customer_id, bill_number, dress_type, order_date, due_date, total_value, JSON.stringify(details), others]
-    );
-    res.status(201).json({ message: "Bill created" });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// Replace with your actual DB logic
+const db = require("../db");
+
+// Create a new bill
+router.post("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const bill = { ...req.body, shopkeeper_id: shopkeeperId };
+  const result = await db.bills.insertOne(bill);
+  res.json({ message: "Bill created", billId: result.insertedId });
 });
 
-router.get("/:shopkeeper_id", async (req, res) => {
-  const { shopkeeper_id } = req.params;
-  try {
-    const [rows] = await db.execute(
-      `SELECT b.*, c.name as customer_name, c.mobile FROM bills b
-       JOIN customers c ON b.customer_id = c.id
-       WHERE b.shopkeeper_id = ? ORDER BY b.due_date ASC`,
-      [shopkeeper_id]
-    );
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// Get all bills for the logged-in shopkeeper
+router.get("/", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const bills = await db.bills.find({ shopkeeper_id: shopkeeperId }).toArray();
+  res.json(bills);
 });
 
-router.post("/status", async (req, res) => {
-  const { bill_id, status, status_date } = req.body;
-  try {
-    await db.execute(
-      "INSERT INTO bill_status (bill_id, status, status_date) VALUES (?, ?, ?)",
-      [bill_id, status, status_date]
-    );
-    await db.execute(
-      "UPDATE bills SET status = ? WHERE id = ?",
-      [status, bill_id]
-    );
-    res.json({ message: "Status updated" });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
+// Dashboard deliveries: overdue, today, next 2 days
+router.get("/dashboard-deliveries", authenticate, async (req, res) => {
+  const shopkeeperId = req.shopkeeperId;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().slice(0,10);
+
+  const next2 = new Date(today);
+  next2.setDate(today.getDate() + 2);
+  const next2Str = next2.toISOString().slice(0,10);
+
+  // Adjust queries for your DB
+  const overdue = await db.bills.find({
+    shopkeeper_id: shopkeeperId,
+    due_date: { $lt: todayStr }
+  }).toArray();
+
+  const todayDeliveries = await db.bills.find({
+    shopkeeper_id: shopkeeperId,
+    due_date: todayStr
+  }).toArray();
+
+  const upcoming = await db.bills.find({
+    shopkeeper_id: shopkeeperId,
+    due_date: { $gt: todayStr, $lte: next2Str }
+  }).toArray();
+
+  res.json({ overdue, today: todayDeliveries, upcoming });
 });
 
 module.exports = router;
