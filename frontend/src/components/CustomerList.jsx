@@ -6,9 +6,22 @@ export default function CustomerList() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/bills")
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch bills");
+    // Get token if needed for authentication
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(async res => {
+        if (!res.ok) {
+          let msg = "Failed to fetch bills";
+          try {
+            const data = await res.json();
+            msg = data.error || msg;
+          } catch {
+            // If response is not JSON, keep the default message
+          }
+          throw new Error(msg);
+        }
         return res.json();
       })
       .then(data => {
