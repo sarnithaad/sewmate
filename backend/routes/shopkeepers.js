@@ -1,11 +1,10 @@
+// routes/shopkeepers.js
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-
-// Replace with your actual DB logic
-const db = require("../db"); // Example: your DB connection
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const db = require("../db");
+const JWT_SECRET = process.env.JWT_SECRET || "Sharnitha@2003";
 
 // Registration
 router.post("/register", async (req, res) => {
@@ -13,48 +12,51 @@ router.post("/register", async (req, res) => {
   if (!shop_name || !owner_name || !email || !password || !mobile) {
     return res.status(400).json({ error: "All fields except address are required." });
   }
-  // Check if email exists
-  const exists = await db.shopkeepers.findOne({ email });
-  if (exists) return res.status(400).json({ error: "Email already registered." });
+  try {
+    const [rows] = await db.execute("SELECT id FROM shopkeepers WHERE email = ?", [email]);
+    if (rows.length > 0) return res.status(400).json({ error: "Email already registered." });
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const newShopkeeper = {
-    shop_name,
-    owner_name,
-    email,
-    password: hashedPassword,
-    mobile,
-    address
-  };
-  const result = await db.shopkeepers.insertOne(newShopkeeper);
-  res.json({ message: "Registration successful!" });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.execute(
+      "INSERT INTO shopkeepers (shop_name, owner_name, email, password, mobile, address) VALUES (?, ?, ?, ?, ?, ?)",
+      [shop_name, owner_name, email, hashedPassword, mobile, address]
+    );
+    res.json({ message: "Registration successful!" });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 // Login
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const shopkeeper = await db.shopkeepers.findOne({ email });
-  if (!shopkeeper) return res.status(401).json({ error: "Invalid credentials" });
+  try {
+    const [rows] = await db.execute("SELECT * FROM shopkeepers WHERE email = ?", [email]);
+    if (rows.length === 0) return res.status(401).json({ error: "Invalid credentials" });
 
-  const valid = await bcrypt.compare(password, shopkeeper.password);
-  if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+    const shopkeeper = rows[0];
+    const valid = await bcrypt.compare(password, shopkeeper.password);
+    if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 
-  const token = jwt.sign(
-    { id: shopkeeper._id || shopkeeper.id, email: shopkeeper.email },
-    JWT_SECRET,
-    { expiresIn: "7d" }
-  );
-  res.json({
-    token,
-    shopkeeper: {
-      id: shopkeeper._id || shopkeeper.id,
-      shop_name: shopkeeper.shop_name,
-      owner_name: shopkeeper.owner_name,
-      email: shopkeeper.email,
-      mobile: shopkeeper.mobile,
-      address: shopkeeper.address
-    }
-  });
+    const token = jwt.sign(
+      { id: shopkeeper.id, email: shopkeeper.email },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.json({
+      token,
+      shopkeeper: {
+        id: shopkeeper.id,
+        shop_name: shopkeeper.shop_name,
+        owner_name: shopkeeper.owner_name,
+        email: shopkeeper.email,
+        mobile: shopkeeper.mobile,
+        address: shopkeeper.address
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 module.exports = router;
