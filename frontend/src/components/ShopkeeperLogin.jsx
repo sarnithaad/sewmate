@@ -1,84 +1,72 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
-export default function ShopkeeperLogin() {
-  const [form, setForm] = useState({
-    email: "",
-    password: ""
-  });
+export default function ShopkeeperDashboard() {
+  const [deliveries, setDeliveries] = useState({ overdue: [], today: [], upcoming: [] });
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleChange = e => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError("");
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/shopkeepers/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/dashboard-deliveries`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(async res => {
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          throw new Error("Server error: invalid response");
         }
-      );
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        setError("Server error: invalid response");
-        return;
-      }
-      if (!res.ok) {
-        setError(data.error || "Login failed");
-      } else {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("shopkeeper", JSON.stringify(data.shopkeeper));
-        navigate("/dashboard");
-      }
-    } catch {
-      setError("Network error. Please try again.");
-    }
-  };
+        if (!res.ok) throw new Error(data.error || "Failed to fetch deliveries");
+        return data;
+      })
+      .then(data => {
+        setDeliveries(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setDeliveries({ overdue: [], today: [], upcoming: [] });
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="p-4">Loading dashboard...</div>;
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Shopkeeper Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-          required
-          autoComplete="username"
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          className="border p-2 w-full rounded"
-          required
-          autoComplete="current-password"
-        />
-        {error && <div className="text-red-600">{error}</div>}
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded w-full">
-          Login
-        </button>
-      </form>
-      <div className="mt-4 text-center">
-        New shopkeeper?{" "}
-        <Link to="/" className="text-blue-600 underline">
-          Register here
-        </Link>
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Delivery Dashboard</h2>
+      {error && (
+        <div className="mb-4 text-red-600 bg-red-50 border border-red-200 rounded p-2">
+          {error}
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <DeliveryList title="Overdue Deliveries" bills={deliveries.overdue} color="red" />
+        <DeliveryList title="Today's Deliveries" bills={deliveries.today} color="green" />
+        <DeliveryList title="Next 2 Days" bills={deliveries.upcoming} color="blue" />
       </div>
+    </div>
+  );
+}
+
+function DeliveryList({ title, bills, color }) {
+  return (
+    <div className={`bg-${color}-50 border-l-4 border-${color}-500 p-4 rounded`}>
+      <h3 className={`text-${color}-700 font-semibold mb-2`}>{title}</h3>
+      {bills.length === 0 ? (
+        <div className="text-gray-500">No deliveries</div>
+      ) : (
+        <ul className="space-y-2">
+          {bills.map(bill => (
+            <li key={bill.id} className="border-b pb-1">
+              <div className="font-bold">{bill.customer_name}</div>
+              <div>Due: {bill.due_date}</div>
+              <div>Value: ₹{bill.total_value}</div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
