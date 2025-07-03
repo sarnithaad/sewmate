@@ -1,35 +1,51 @@
-// routes/customers.js
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
 const authenticate = require("../middleware/auth");
 
-// Add a new customer
+// ✅ Add a new customer
 router.post("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const { name, mobile, address } = req.body;
+
+  if (!name || !mobile) {
+    return res.status(400).json({ error: "Customer name and mobile are required." });
+  }
+
   try {
+    // Optional: Prevent duplicate entries
+    const [existing] = await db.execute(
+      "SELECT id FROM customers WHERE shopkeeper_id = ? AND mobile = ?",
+      [shopkeeperId, mobile]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({ error: "Customer with this mobile already exists." });
+    }
+
     const [result] = await db.execute(
       "INSERT INTO customers (shopkeeper_id, name, mobile, address) VALUES (?, ?, ?, ?)",
-      [shopkeeperId, name, mobile, address]
+      [shopkeeperId, name.trim(), mobile.trim(), address || ""]
     );
-    res.json({ message: "Customer added", customerId: result.insertId });
+
+    res.status(201).json({ message: "Customer added", customerId: result.insertId });
   } catch (err) {
-    res.status(500).json({ error: "Database error" });
+    console.error("Add customer error:", err);
+    res.status(500).json({ error: "Database error adding customer" });
   }
 });
 
-// Get all customers for the logged-in shopkeeper
+// ✅ Get all customers for the logged-in shopkeeper
 router.get("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   try {
     const [customers] = await db.execute(
-      "SELECT * FROM customers WHERE shopkeeper_id = ?",
+      "SELECT id, name, mobile, address FROM customers WHERE shopkeeper_id = ? ORDER BY name ASC",
       [shopkeeperId]
     );
     res.json(customers);
   } catch (err) {
-    res.status(500).json({ error: "Database error" });
+    console.error("Fetch customers error:", err);
+    res.status(500).json({ error: "Database error fetching customers" });
   }
 });
 
