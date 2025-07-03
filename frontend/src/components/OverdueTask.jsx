@@ -13,7 +13,7 @@ export default function OverdueTask() {
       return;
     }
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/bills/overdue/${shopkeeperId}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/overdue/`)
       .then(async res => {
         if (!res.ok) {
           let msg = "Failed to fetch overdue tasks";
