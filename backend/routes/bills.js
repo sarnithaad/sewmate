@@ -99,7 +99,6 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Dashboard stats (overdue, today, upcoming)
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
@@ -111,26 +110,20 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   try {
     const [overdue] = await db.execute(
       `SELECT * FROM bills 
-       WHERE shopkeeper_id = ? 
-         AND due_date < ? 
-         AND status != 'Delivered'`,
+       WHERE shopkeeper_id = ? AND due_date < ? AND status != 'Delivered'`,
       [shopkeeperId, todayStr]
     );
     const [todayBills] = await db.execute(
       `SELECT * FROM bills 
-       WHERE shopkeeper_id = ? 
-         AND due_date = ? 
-         AND status != 'Delivered'`,
+       WHERE shopkeeper_id = ? AND due_date = ? AND status != 'Delivered'`,
       [shopkeeperId, todayStr]
     );
     const [upcoming] = await db.execute(
       `SELECT * FROM bills 
-       WHERE shopkeeper_id = ? 
-         AND due_date > ? 
-         AND due_date <= ? 
-         AND status != 'Delivered'`,
+       WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ? AND status != 'Delivered'`,
       [shopkeeperId, todayStr, next2Str]
     );
+
     res.json({ overdue, today: todayBills, upcoming });
   } catch (err) {
     console.error("❌ Dashboard delivery fetch error:", err);
