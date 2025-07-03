@@ -13,7 +13,11 @@ export default function BillStatus() {
       setError("Shopkeeper not found.");
       return;
     }
-    fetch(`${process.env.REACT_APP_API_URL}/api/bills/${shopkeeperId}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
       .then(async res => {
         if (!res.ok) {
           let msg = "Failed to fetch bills";
