@@ -9,12 +9,12 @@ const dressTypes = [
   { value: "Lehanga", label: "Lehanga" }
 ];
 
-// Add real measurements per dress
+// FULL measurements preserved from old code
 const measurementsList = {
-  Chudidhar: ["Chest", "Waist", "Length", "Shoulder"],
-  Blouse: ["Chest", "Waist", "Length", "Sleeve"],
-  Frock: ["Length", "Shoulder", "Waist"],
-  Lehanga: ["Waist", "Hip", "Length"]
+  Chudidhar: ["Chest", "Waist", "Length", "Shoulder", "Sleeve", "Hip"],
+  Blouse: ["Chest", "Waist", "Length", "Shoulder", "Sleeve", "Front Neck", "Back Neck"],
+  Frock: ["Length", "Shoulder", "Waist", "Chest", "Hip"],
+  Lehanga: ["Waist", "Hip", "Length", "Blouse Chest", "Blouse Waist"]
 };
 
 export default function NewBill() {
@@ -26,8 +26,8 @@ export default function NewBill() {
     order_date: "",
     due_date: "",
     measurements: {},
-    extras: [], // { name: "Lace", price: 50 }
-    total_value: 0,
+    extras: [],
+    total_value: 0
   });
 
   const [msg, setMsg] = useState("");
@@ -36,7 +36,7 @@ export default function NewBill() {
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
-    documentTitle: `SewMate_Bill_${bill.bill_number}`,
+    documentTitle: `SewMate_Bill_${bill.bill_number}`
   });
 
   const handleChange = (field, value) => {
@@ -71,7 +71,7 @@ export default function NewBill() {
     }));
   };
 
-  const handleSubmit = async e => {
+  const handleSave = async e => {
     e.preventDefault();
     setMsg("");
     const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
@@ -81,7 +81,7 @@ export default function NewBill() {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...bill, shopkeeper_id }),
+        body: JSON.stringify({ ...bill, shopkeeper_id })
       });
       const data = await res.json();
       if (!res.ok) return setMsg(data.error || "Failed to save bill");
@@ -97,7 +97,8 @@ export default function NewBill() {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h2 className="text-2xl font-bold text-indigo-700 mb-4">🧾 New Bill Entry</h2>
-      <form className="space-y-4 bg-white p-6 rounded shadow-md" onSubmit={handleSubmit}>
+
+      <form className="space-y-4 bg-white p-6 rounded shadow-md" onSubmit={handleSave}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -121,12 +122,15 @@ export default function NewBill() {
             className="border p-2 rounded w-full"
           >
             {dressTypes.map(d => (
-              <option key={d.value} value={d.value}>{d.label}</option>
+              <option key={d.value} value={d.value}>
+                {d.label}
+              </option>
             ))}
           </select>
           <input
             type="date"
             className="border p-2 rounded w-full"
+            placeholder="Booking Date"
             value={bill.order_date}
             onChange={e => handleChange("order_date", e.target.value)}
             required
@@ -134,15 +138,16 @@ export default function NewBill() {
           <input
             type="date"
             className="border p-2 rounded w-full"
+            placeholder="Due Date"
             value={bill.due_date}
             onChange={e => handleChange("due_date", e.target.value)}
             required
           />
         </div>
 
-        {/* Measurements Section */}
+        {/* Measurements */}
         <div>
-          <h3 className="font-semibold text-gray-700 mb-2">Measurements (No price)</h3>
+          <h3 className="font-semibold text-gray-700 mb-2">📏 Measurements (No price)</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {selectedMeasurements.map(m => (
               <input
@@ -157,10 +162,10 @@ export default function NewBill() {
           </div>
         </div>
 
-        {/* Extras Section */}
+        {/* Extras */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold text-gray-700">Additional Items (with price)</h3>
+            <h3 className="font-semibold text-gray-700">➕ Additional Items (with price)</h3>
             <button
               type="button"
               onClick={handleAddExtra}
@@ -193,24 +198,30 @@ export default function NewBill() {
           Total: ₹{bill.total_value.toLocaleString("en-IN")}
         </div>
 
-        <button
-          type="submit"
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-        >
-          💾 Save & Show Print Preview
-        </button>
+        <div className="flex flex-wrap gap-4 mt-4">
+          <button
+            type="submit"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+          >
+            💾 Save & Show Print Preview
+          </button>
+
+          {showPrint && (
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+            >
+              🖨️ Print Bill
+            </button>
+          )}
+        </div>
 
         {msg && <div className="mt-2 text-blue-600">{msg}</div>}
       </form>
 
       {showPrint && (
         <div className="mt-8">
-          <button
-            onClick={handlePrint}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mb-3"
-          >
-            🖨️ Print Bill
-          </button>
           <div ref={printRef} className="bg-white p-6 rounded shadow">
             <PrintableBill bill={bill} />
           </div>
