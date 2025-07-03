@@ -12,6 +12,12 @@ export default function ShopkeeperDashboard() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    if (!token) {
+      setError("Unauthorized: No token found");
+      setLoading(false);
+      return;
+    }
+
     fetch(`${process.env.REACT_APP_API_URL}/api/bills/dashboard-deliveries`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -20,34 +26,41 @@ export default function ShopkeeperDashboard() {
         try {
           data = await res.json();
         } catch {
-          throw new Error("Server error: invalid response");
+          throw new Error("Invalid response from server");
         }
         if (!res.ok) throw new Error(data.error || "Failed to fetch deliveries");
-        return data;
-      })
-      .then(data => {
         setDeliveries(data);
         setLoading(false);
       })
       .catch(err => {
+        setError(err.message || "Error fetching delivery dashboard");
         setDeliveries({ overdue: [], today: [], upcoming: [] });
-        setError(err.message);
         setLoading(false);
       });
   }, []);
 
   useEffect(() => {
-    // Fetch deliveries for selected date
-    fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date/${selectedDate.toISOString().split("T")[0]}`, {
+    if (!token) {
+      setSelectedDateBills([]);
+      return;
+    }
+
+    const dateStr = selectedDate.toISOString().split("T")[0];
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date/${dateStr}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(async res => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to fetch selected date data");
-        setSelectedDateBills(data.bills || []);
+        let data;
+        try {
+          data = await res.json();
+        } catch {
+          throw new Error("Invalid response fetching date-specific bills");
+        }
+        if (!res.ok) throw new Error(data.error || "Failed to fetch bills for date");
+        setSelectedDateBills(Array.isArray(data) ? data : []);
       })
       .catch(() => setSelectedDateBills([]));
-  }, [selectedDate]);
+  }, [selectedDate, token]);
 
   if (loading) return <div className="p-6 text-lg">Loading dashboard...</div>;
 
