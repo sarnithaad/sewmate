@@ -23,8 +23,9 @@ router.post("/register", async (req, res) => {
     );
     res.json({ message: "Registration successful!" });
   } catch (err) {
-    res.status(500).json({ error: "Database error" });
-  }
+  console.error(err); // This will show the full error in Render logs
+  res.status(500).json({ error: "Database error" });
+}
 });
 
 // Login
