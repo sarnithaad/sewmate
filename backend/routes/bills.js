@@ -22,7 +22,7 @@ router.post("/", authenticate, async (req, res) => {
   await conn.beginTransaction();
 
   try {
-    // 1. Insert into bills table
+    // 1. Insert bill
     const [billResult] = await conn.execute(
       `INSERT INTO bills 
         (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status) 
@@ -41,17 +41,17 @@ router.post("/", authenticate, async (req, res) => {
 
     const billId = billResult.insertId;
 
-    // 2. Insert measurements (stored as JSON in DB or another table)
+    // 2. Store bill details
     await conn.execute(
       `INSERT INTO bill_details (bill_id, measurements_json, extras_json) VALUES (?, ?, ?)`,
       [billId, JSON.stringify(measurements), JSON.stringify(extras)]
     );
 
     await conn.commit();
-    res.status(201).json({ message: "Bill created", billId });
+    res.status(201).json({ message: "✅ Bill created", billId });
   } catch (err) {
     await conn.rollback();
-    console.error("Bill creation error:", err);
+    console.error("❌ Bill creation error:", err);
     res.status(500).json({ error: "Failed to create bill" });
   } finally {
     conn.release();
@@ -63,17 +63,20 @@ router.get("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   try {
     const [bills] = await db.execute(
-      "SELECT b.*, d.measurements_json, d.extras_json FROM bills b LEFT JOIN bill_details d ON b.id = d.bill_id WHERE b.shopkeeper_id = ?",
+      `SELECT b.*, d.measurements_json, d.extras_json 
+       FROM bills b 
+       LEFT JOIN bill_details d ON b.id = d.bill_id 
+       WHERE b.shopkeeper_id = ?`,
       [shopkeeperId]
     );
     res.json(bills);
   } catch (err) {
-    console.error("Fetch bills error:", err);
+    console.error("❌ Fetch bills error:", err);
     res.status(500).json({ error: "Database error fetching bills" });
   }
 });
 
-// ✅ Dashboard - overdue, today, upcoming
+// ✅ Get delivery stats for dashboard (overdue, today, upcoming)
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
@@ -82,67 +85,85 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
 
   try {
     const [overdue] = await db.execute(
-      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date < ? AND status != 'Delivered'",
+      `SELECT * FROM bills 
+       WHERE shopkeeper_id = ? 
+         AND due_date < ? 
+         AND status != 'Delivered'`,
       [shopkeeperId, todayStr]
     );
     const [todayBills] = await db.execute(
-      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ? AND status != 'Delivered'",
+      `SELECT * FROM bills 
+       WHERE shopkeeper_id = ? 
+         AND due_date = ? 
+         AND status != 'Delivered'`,
       [shopkeeperId, todayStr]
     );
     const [upcoming] = await db.execute(
-      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ? AND status != 'Delivered'",
+      `SELECT * FROM bills 
+       WHERE shopkeeper_id = ? 
+         AND due_date > ? 
+         AND due_date <= ? 
+         AND status != 'Delivered'`,
       [shopkeeperId, todayStr, next2Str]
     );
     res.json({ overdue, today: todayBills, upcoming });
   } catch (err) {
-    console.error("Dashboard delivery fetch error:", err);
+    console.error("❌ Dashboard delivery fetch error:", err);
     res.status(500).json({ error: "Failed to load delivery dashboard" });
   }
 });
 
-// ✅ Get bills for calendar view by selected date
+// ✅ Get bills by specific due date
 router.get("/by-date/:date", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const date = req.params.date;
   try {
     const [bills] = await db.execute(
-      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ?",
+      `SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ?`,
       [shopkeeperId, date]
     );
     res.json(bills);
   } catch (err) {
+    console.error("❌ Date-based fetch error:", err);
     res.status(500).json({ error: "Failed to load bills for date" });
   }
 });
 
-// ✅ Update bill status (e.g., "Packed", "Delivered", etc.)
+// ✅ Update bill status (e.g. 'Packed', 'Delivered')
 router.post("/status", authenticate, async (req, res) => {
   const { bill_id, status, status_date } = req.body;
   try {
     await db.execute(
-      "UPDATE bills SET status = ?, status_date = ? WHERE id = ?",
+      `UPDATE bills SET status = ?, status_date = ? WHERE id = ?`,
       [status, status_date, bill_id]
     );
-    res.json({ message: "Status updated" });
+    res.json({ message: "✅ Status updated" });
   } catch (err) {
-    console.error("Status update error:", err);
+    console.error("❌ Status update error:", err);
     res.status(500).json({ error: "Failed to update bill status" });
   }
 });
 
-// ✅ Delete delivered bills (when status is "Delivered")
+// ✅ Delete delivered bill
 router.delete("/delivered/:id", authenticate, async (req, res) => {
   const billId = req.params.id;
   try {
-    await db.execute("DELETE FROM bills WHERE id = ? AND status = 'Delivered'", [billId]);
-    await db.execute("DELETE FROM bill_details WHERE bill_id = ?", [billId]);
-    res.json({ message: "Delivered bill deleted" });
+    await db.execute(
+      `DELETE FROM bills WHERE id = ? AND status = 'Delivered'`,
+      [billId]
+    );
+    await db.execute(
+      `DELETE FROM bill_details WHERE bill_id = ?`,
+      [billId]
+    );
+    res.json({ message: "✅ Delivered bill deleted" });
   } catch (err) {
+    console.error("❌ Deletion error:", err);
     res.status(500).json({ error: "Failed to delete delivered bill" });
   }
 });
 
-// ✅ Get overdue bills not packed 1 day before due date
+// ✅ Overdue: Bills not packed 1 day before due
 router.get("/overdue/:shopkeeperId", async (req, res) => {
   const shopkeeperId = req.params.shopkeeperId;
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -156,6 +177,7 @@ router.get("/overdue/:shopkeeperId", async (req, res) => {
     );
     res.json(rows);
   } catch (err) {
+    console.error("❌ Overdue fetch error:", err);
     res.status(500).json({ error: "Error fetching overdue tasks" });
   }
 });
