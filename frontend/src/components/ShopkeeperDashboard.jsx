@@ -38,7 +38,7 @@ export default function ShopkeeperDashboard() {
 
   useEffect(() => {
     // Fetch deliveries for selected date
-    fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date?date=${selectedDate.toISOString().split("T")[0]}`, {
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date/{selectedDate.toISOString().split("T")[0]}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(async res => {
