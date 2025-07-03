@@ -1,53 +1,67 @@
+// routes/bills.js
 const express = require("express");
 const router = express.Router();
-const authenticate = require("../middleware/auth");
-
-// Replace with your actual DB logic
 const db = require("../db");
+const authenticate = require("../middleware/auth");
 
 // Create a new bill
 router.post("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
-  const bill = { ...req.body, shopkeeper_id: shopkeeperId };
-  const result = await db.bills.insertOne(bill);
-  res.json({ message: "Bill created", billId: result.insertedId });
+  const { customer_name, due_date, total_value } = req.body;
+  try {
+    const [result] = await db.execute(
+      "INSERT INTO bills (shopkeeper_id, customer_name, due_date, total_value) VALUES (?, ?, ?, ?)",
+      [shopkeeperId, customer_name, due_date, total_value]
+    );
+    res.json({ message: "Bill created", billId: result.insertId });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 // Get all bills for the logged-in shopkeeper
 router.get("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
-  const bills = await db.bills.find({ shopkeeper_id: shopkeeperId }).toArray();
-  res.json(bills);
+  try {
+    const [bills] = await db.execute(
+      "SELECT * FROM bills WHERE shopkeeper_id = ?",
+      [shopkeeperId]
+    );
+    res.json(bills);
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 // Dashboard deliveries: overdue, today, next 2 days
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
-  today.setHours(0,0,0,0);
-  const todayStr = today.toISOString().slice(0,10);
-
+  const todayStr = today.toISOString().slice(0, 10);
   const next2 = new Date(today);
   next2.setDate(today.getDate() + 2);
-  const next2Str = next2.toISOString().slice(0,10);
+  const next2Str = next2.toISOString().slice(0, 10);
 
-  // Adjust queries for your DB
-  const overdue = await db.bills.find({
-    shopkeeper_id: shopkeeperId,
-    due_date: { $lt: todayStr }
-  }).toArray();
-
-  const todayDeliveries = await db.bills.find({
-    shopkeeper_id: shopkeeperId,
-    due_date: todayStr
-  }).toArray();
-
-  const upcoming = await db.bills.find({
-    shopkeeper_id: shopkeeperId,
-    due_date: { $gt: todayStr, $lte: next2Str }
-  }).toArray();
-
-  res.json({ overdue, today: todayDeliveries, upcoming });
+  try {
+    // Overdue: due_date < today
+    const [overdue] = await db.execute(
+      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date < ?",
+      [shopkeeperId, todayStr]
+    );
+    // Today: due_date = today
+    const [todayDeliveries] = await db.execute(
+      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ?",
+      [shopkeeperId, todayStr]
+    );
+    // Next 2 days: due_date > today AND due_date <= today+2
+    const [upcoming] = await db.execute(
+      "SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ?",
+      [shopkeeperId, todayStr, next2Str]
+    );
+    res.json({ overdue, today: todayDeliveries, upcoming });
+  } catch (err) {
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 module.exports = router;
