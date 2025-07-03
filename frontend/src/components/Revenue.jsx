@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import Calendar from "react-calendar";
+import 'react-calendar/dist/Calendar.css';
 
 export default function Revenue() {
   const [bills, setBills] = useState([]);
   const [error, setError] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // Get shopkeeper ID from localStorage
   const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
   const shopkeeperId = shopkeeper.id;
 
@@ -26,24 +28,58 @@ export default function Revenue() {
       .catch(err => setError(err.message || "Error loading revenue"));
   }, [shopkeeperId]);
 
-  // Revenue calculations
-  const dueRevenue = bills
-    .filter(b => b.status !== "Delivered")
-    .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
+  const formatDate = date => date.toISOString().split("T")[0];
 
-  const actualRevenue = bills
-    .filter(b => b.status === "Delivered")
-    .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
+  const todayStr = formatDate(new Date());
+  const selectedStr = formatDate(selectedDate);
+
+  // Revenue calculations
+  const calcRevenue = dateStr => {
+    const expected = bills
+      .filter(b => b.due_date === dateStr)
+      .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
+    const actual = bills
+      .filter(b => b.delivery_date === dateStr && b.status === "Delivered")
+      .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
+    return { expected, actual };
+  };
+
+  const { expected: todayExpected, actual: todayActual } = calcRevenue(todayStr);
+  const { expected: selectedExpected, actual: selectedActual } = calcRevenue(selectedStr);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-2">Revenue</h2>
-      {error && <div className="text-red-600 mb-2">{error}</div>}
-      <div className="mb-2">
-        Expected Revenue: ₹{dueRevenue.toLocaleString("en-IN")}
-      </div>
-      <div className="mb-2">
-        Actual Revenue: ₹{actualRevenue.toLocaleString("en-IN")}
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <h2 className="text-3xl font-bold text-indigo-700 mb-6">Revenue Dashboard</h2>
+
+      {error && (
+        <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded mb-4">
+          ❌ {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        {/* Today's Revenue Summary */}
+        <div className="bg-white shadow-md p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-green-700 mb-4">📅 Today's Revenue</h3>
+          <div className="space-y-2 text-lg">
+            <p>🧾 Expected: <span className="font-semibold text-gray-800">₹{todayExpected.toLocaleString("en-IN")}</span></p>
+            <p>✅ Actual: <span className="font-semibold text-gray-800">₹{todayActual.toLocaleString("en-IN")}</span></p>
+          </div>
+        </div>
+
+        {/* Revenue by Selected Date */}
+        <div className="bg-white shadow-md p-6 rounded-lg">
+          <h3 className="text-xl font-semibold text-blue-700 mb-4">📆 Revenue on Selected Date</h3>
+          <Calendar
+            onChange={setSelectedDate}
+            value={selectedDate}
+            className="mb-4 rounded shadow-md"
+          />
+          <div className="space-y-2 text-lg">
+            <p>🧾 Expected (due): <span className="font-semibold text-gray-800">₹{selectedExpected.toLocaleString("en-IN")}</span></p>
+            <p>✅ Actual (delivered): <span className="font-semibold text-gray-800">₹{selectedActual.toLocaleString("en-IN")}</span></p>
+          </div>
+        </div>
       </div>
     </div>
   );
