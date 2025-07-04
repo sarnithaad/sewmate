@@ -82,16 +82,20 @@ export default function NewBill() {
     }));
   };
 
-  const handleSave = async e => {
+   const handleSave = async e => {
     e.preventDefault();
     setMsg("");
     const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
     const shopkeeper_id = shopkeeper.id;
-    if (!shopkeeper_id) return setMsg("Shopkeeper not found.");
+    const token = localStorage.getItem("token");
+    if (!shopkeeper_id || !token) return setMsg("Shopkeeper not found or not authenticated.");
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ ...bill, shopkeeper_id, design_url: selectedDesignUrl })
       });
       const data = await res.json();
