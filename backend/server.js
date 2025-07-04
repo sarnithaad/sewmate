@@ -10,11 +10,22 @@ const designsRouter = require("./routes/designs");
 const customersRouter = require("./routes/customers");
 const todosRouter = require("./routes/todos");
 
-const app = express();
+const allowedOrigins = [
+  "https://sewmate.vercel.app", // production
+  "https://sewmate-5ktmc0ujt-sarnitha-a-ds-projects.vercel.app", // Vercel preview
+  "http://localhost:3000" // development
+];
 
-// Middleware
 app.use(cors({
-  origin: "*"}));
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json());
 app.use(morgan("dev")); // For logging requests
 
