@@ -4,16 +4,17 @@ export default function OverdueTask() {
   const [overdue, setOverdue] = useState([]);
   const [error, setError] = useState("");
 
-  const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
-  const shopkeeperId = shopkeeper.id;
-
   useEffect(() => {
-    if (!shopkeeperId) {
-      setError("Shopkeeper not found.");
+    const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
+    const token = localStorage.getItem("token");
+    if (!shopkeeper.id || !token) {
+      setError("Shopkeeper not found or not authenticated.");
       return;
     }
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/bills/overdue/`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills/overdue`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(async res => {
         if (!res.ok) {
           let msg = "Failed to fetch overdue tasks";
@@ -26,7 +27,7 @@ export default function OverdueTask() {
       })
       .then(setOverdue)
       .catch(err => setError(err.message || "Error loading overdue tasks"));
-  }, [shopkeeperId]);
+  }, []);
 
   const getStatusStyle = status => {
     const base = "px-2 py-1 rounded-full text-xs font-medium";
