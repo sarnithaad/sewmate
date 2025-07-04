@@ -14,7 +14,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://sewmate.vercel.app', // allow your frontend domain
+  origin: "*",
   credentials: true // if you use cookies or authentication
 }));
 app.use(express.json());
