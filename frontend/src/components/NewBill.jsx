@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import PrintableBill from "./PrintableBill";
 
@@ -9,7 +9,6 @@ const dressTypes = [
   { value: "Lehanga", label: "Lehanga" }
 ];
 
-// FULL measurements preserved from old code
 const measurementsList = {
   Chudidhar: ["Chest", "Waist", "Length", "Shoulder", "Sleeve", "Hip"],
   Blouse: ["Chest", "Waist", "Length", "Shoulder", "Sleeve", "Front Neck", "Back Neck"],
@@ -32,12 +31,24 @@ export default function NewBill() {
 
   const [msg, setMsg] = useState("");
   const [showPrint, setShowPrint] = useState(false);
-  const printRef = useRef();
+  const [designs, setDesigns] = useState([]);
+  const [selectedDesignUrl, setSelectedDesignUrl] = useState("");
 
+  const printRef = useRef();
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
     documentTitle: `SewMate_Bill_${bill.bill_number}`
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch(`${process.env.REACT_APP_API_URL}/api/designs`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(setDesigns)
+      .catch(err => console.error("Design fetch error", err));
+  }, []);
 
   const handleChange = (field, value) => {
     setBill(prev => ({ ...prev, [field]: value }));
@@ -81,7 +92,7 @@ export default function NewBill() {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...bill, shopkeeper_id })
+        body: JSON.stringify({ ...bill, shopkeeper_id, design_url: selectedDesignUrl })
       });
       const data = await res.json();
       if (!res.ok) return setMsg(data.error || "Failed to save bill");
@@ -194,6 +205,34 @@ export default function NewBill() {
           ))}
         </div>
 
+        {/* Design Selector */}
+        <div>
+          <h3 className="font-semibold text-gray-700 mb-2">🎨 Choose Design (optional)</h3>
+          <div className="flex gap-4 flex-wrap">
+            {designs.length === 0 && (
+              <p className="text-gray-500">No uploaded designs available.</p>
+            )}
+            {designs.map(design => (
+              <div
+                key={design.id}
+                className={`border rounded cursor-pointer p-1 ${
+                  selectedDesignUrl === design.image_url
+                    ? "ring-2 ring-indigo-600"
+                    : "hover:ring"
+                }`}
+                onClick={() => setSelectedDesignUrl(design.image_url)}
+              >
+                <img
+                  src={design.image_url}
+                  alt={design.name}
+                  className="h-24 w-24 object-cover rounded"
+                />
+                <div className="text-center text-xs mt-1">{design.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="text-lg font-semibold mt-4">
           Total: ₹{bill.total_value.toLocaleString("en-IN")}
         </div>
@@ -223,7 +262,7 @@ export default function NewBill() {
       {showPrint && (
         <div className="mt-8">
           <div ref={printRef} className="bg-white p-6 rounded shadow">
-            <PrintableBill bill={bill} />
+            <PrintableBill bill={{ ...bill, design_url: selectedDesignUrl }} />
           </div>
         </div>
       )}
