@@ -102,7 +102,7 @@ router.get("/:id", authenticate, async (req, res) => {
 });
 
 // ✅ Dashboard deliveries
-router.get('/dashboard-deliveries',autheticate,sasync(req, res) => {
+router.get('/dashboard-deliveries',autheticate,async(req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
