@@ -6,11 +6,11 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Multer setup for image upload
+// ⚙️ Multer setup for image uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "..", "uploads", "designs");
-    fs.mkdirSync(uploadPath, { recursive: true });
+    fs.mkdirSync(uploadPath, { recursive: true }); // ensure directory exists
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -20,18 +20,20 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Utility validation
+// Helper to validate empty strings
 const isEmpty = val => !val || val.trim() === "";
 
-// ✅ Upload design image
+// ✅ [POST] Upload a design image
 router.post("/upload", authenticate, upload.single("image"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: "No image file uploaded." });
+  if (!req.file) {
+    return res.status(400).json({ error: "No image file uploaded." });
+  }
 
-  const imageUrl = `/uploads/designs/${req.file.filename}`; // Public path or URL
-  res.status(200).json({ message: "Image uploaded", image_url: imageUrl });
+  const imageUrl = `/uploads/designs/${req.file.filename}`;
+  res.status(200).json({ message: "Image uploaded successfully", image_url: imageUrl });
 });
 
-// ✅ Add a new design
+// ✅ [POST] Add a new design
 router.post("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const { name, description = "", image_url = "" } = req.body;
@@ -52,7 +54,7 @@ router.post("/", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Get all designs
+// ✅ [GET] Get all designs for the shopkeeper
 router.get("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   try {
@@ -70,7 +72,7 @@ router.get("/", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Get a single design by ID
+// ✅ [GET] Get a single design by ID
 router.get("/:id", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const designId = req.params.id;
@@ -82,7 +84,9 @@ router.get("/:id", authenticate, async (req, res) => {
        WHERE id = ? AND shopkeeper_id = ?`,
       [designId, shopkeeperId]
     );
-    if (rows.length === 0) return res.status(404).json({ error: "Design not found" });
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Design not found" });
+    }
     res.json(rows[0]);
   } catch (err) {
     console.error("❌ Error fetching design:", err);
@@ -90,7 +94,7 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Update a design
+// ✅ [PUT] Update a design
 router.put("/:id", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const designId = req.params.id;
@@ -117,7 +121,7 @@ router.put("/:id", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Delete a design
+// ✅ [DELETE] Delete a design
 router.delete("/:id", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const designId = req.params.id;
