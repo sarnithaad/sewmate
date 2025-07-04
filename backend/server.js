@@ -26,11 +26,11 @@ app.get("/", (req, res) => {
   res.send("🧵 SewMate API is running 🚀");
 });
 
-app.use("/api/shopkeepers", shopkeepersRouter);
-app.use("/api/bills", billsRouter);
-app.use("/api/designs", designsRouter);
-app.use("/api/customers", customersRouter);
-app.use("/api/todos", todosRouter);
+app.use('/api/shopkeepers, shopkeepersRouter);
+app.use('/api/bills', billsRouter);
+app.use('/api/designs', designsRouter);
+app.use('/api/customers', customersRouter);
+app.use('/api/todos', todosRouter);
 
 // 404 handler
 app.use((req, res) => {
