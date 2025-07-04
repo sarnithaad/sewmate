@@ -14,9 +14,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: "*",
-  credentials: true // if you use cookies or authentication
-}));
+  origin: "*"}));
 app.use(express.json());
 app.use(morgan("dev")); // For logging requests
 
