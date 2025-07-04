@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../db");
 const authenticate = require("../middleware/auth");
 
-// ✅ Create a new bill
+// ✅ Create a new bill with optional design_url
 router.post("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const {
@@ -15,7 +15,8 @@ router.post("/", authenticate, async (req, res) => {
     due_date,
     measurements = {},
     extras = [],
-    total_value
+    total_value,
+    design_url = "" // 🔧 new
   } = req.body;
 
   const conn = await db.getConnection();
@@ -24,8 +25,8 @@ router.post("/", authenticate, async (req, res) => {
   try {
     const [billResult] = await conn.execute(
       `INSERT INTO bills 
-        (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked')`,
+        (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status, design_url) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked', ?)`,
       [
         shopkeeperId,
         bill_number,
@@ -34,7 +35,8 @@ router.post("/", authenticate, async (req, res) => {
         dress_type,
         order_date,
         due_date,
-        total_value
+        total_value,
+        design_url
       ]
     );
 
@@ -74,7 +76,7 @@ router.get("/", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Get a single bill by ID (for route /api/bills/:id)
+// ✅ Get a single bill by ID
 router.get("/:id", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const billId = req.params.id;
@@ -99,6 +101,7 @@ router.get("/:id", authenticate, async (req, res) => {
   }
 });
 
+// ✅ Dashboard deliveries
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
@@ -131,7 +134,7 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
   }
 });
 
-// GET /api/bills/by-date/:date
+// ✅ Bills by due date
 router.get("/by-date/:date", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const date = req.params.date;
@@ -141,14 +144,14 @@ router.get("/by-date/:date", authenticate, async (req, res) => {
       `SELECT * FROM bills WHERE shopkeeper_id = ? AND due_date = ?`,
       [shopkeeperId, date]
     );
-    res.json(bills); // ✅ not { bills }, just return the array
+    res.json({ bills }); // ✅ Return as { bills: [...] }
   } catch (err) {
     console.error("❌ Date-based fetch error:", err);
     res.status(500).json({ error: "Failed to load bills for date" });
   }
 });
 
-// ✅ Update bill status (e.g. 'Packed', 'Delivered')
+// ✅ Update bill status
 router.post("/status", authenticate, async (req, res) => {
   const { bill_id, status, status_date } = req.body;
   try {
@@ -176,7 +179,7 @@ router.delete("/delivered/:id", authenticate, async (req, res) => {
   }
 });
 
-// ✅ Overdue: Bills not packed 1 day before due
+// ✅ Overdue tasks
 router.get("/overdue", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const todayStr = new Date().toISOString().split("T")[0];
