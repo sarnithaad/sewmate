@@ -102,7 +102,7 @@ router.get("/:id", authenticate, async (req, res) => {
 });
 
 // ✅ Dashboard deliveries
-router.get('/dashboard-deliveries',authenticate,async(req, res) => {
+router.get('/dashboard-deliveries', authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -126,7 +126,6 @@ router.get('/dashboard-deliveries',authenticate,async(req, res) => {
        WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ? AND status != 'Delivered'`,
       [shopkeeperId, todayStr, next2Str]
     );
-res.json({ message: 'Deliveries data' });
     res.json({ overdue, today: todayBills, upcoming });
   } catch (err) {
     console.error("❌ Dashboard delivery fetch error:", err);
