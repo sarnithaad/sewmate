@@ -1,4 +1,4 @@
-const express = require("express");
+zconst express = require("express");
 const router = express.Router();
 const db = require("../db");
 const authenticate = require("../middleware/auth");
@@ -54,7 +54,7 @@ router.post("/", authenticate, async (req, res) => {
   }
 });
 
-// ✅ [GET] Get all designs for the shopkeeper
+// ✅ Get all designs
 router.get("/", authenticate, async (req, res) => {
   const shopkeeperId = req.shopkeeperId;
   try {
@@ -65,7 +65,7 @@ router.get("/", authenticate, async (req, res) => {
        ORDER BY created_at DESC`,
       [shopkeeperId]
     );
-    res.json(designs);
+    res.json(designs); // ✅ Must return array
   } catch (err) {
     console.error("❌ Error fetching designs:", err);
     res.status(500).json({ error: "Database error while fetching designs" });
