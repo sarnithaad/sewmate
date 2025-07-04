@@ -32,6 +32,12 @@ const PrintableBill = forwardRef(({ bill }, ref) => (
         ))}
       </tbody>
     </table>
+{bill.design_url && (
+  <div className="mt-4">
+    <h4 className="text-sm font-medium">Design</h4>
+    <img src={bill.design_url} alt="Design" className="h-32 rounded mt-2" />
+  </div>
+)}
 
     {/* Extras */}
     {bill.extras && bill.extras.length > 0 && (
