@@ -3,8 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 
-dotenv.config(); // Load environment variables from .env
-
+dotenv.config(); 
 const shopkeepersRouter = require("./routes/shopkeepers");
 const billsRouter = require("./routes/bills");
 const designsRouter = require("./routes/designs");
