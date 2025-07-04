@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
   res.send("🧵 SewMate API is running 🚀");
 });
 
-app.use('/api/shopkeepers, shopkeepersRouter);
+app.use('/api/shopkeepers', shopkeepersRouter);
 app.use('/api/bills', billsRouter);
 app.use('/api/designs', designsRouter);
 app.use('/api/customers', customersRouter);
