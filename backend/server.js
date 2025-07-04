@@ -42,6 +42,10 @@ app.use((err, req, res, next) => {
   console.error("❌ Server error:", err);
   res.status(500).json({ error: "Internal Server Error" });
 });
+// Place this LAST in server.js
+app.use((req, res) => {
+  res.status(404).send("Sorry, can't find that!");
+});
 
 // Start server
 const PORT = process.env.PORT || 10000;
