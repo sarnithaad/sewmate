@@ -7,15 +7,16 @@ export default function Revenue() {
   const [error, setError] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
-  const shopkeeperId = shopkeeper.id;
-
   useEffect(() => {
-    if (!shopkeeperId) {
-      setError("Shopkeeper not found.");
+    const shopkeeper = JSON.parse(localStorage.getItem("shopkeeper") || "{}");
+    const token = localStorage.getItem("token");
+    if (!shopkeeper.id || !token) {
+      setError("Shopkeeper not found or not authenticated.");
       return;
     }
-    fetch(`${process.env.REACT_APP_API_URL}/api/bills/${shopkeeperId}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(async res => {
         if (!res.ok) {
           let msg = "Failed to fetch bills";
@@ -26,7 +27,7 @@ export default function Revenue() {
       })
       .then(setBills)
       .catch(err => setError(err.message || "Error loading revenue"));
-  }, [shopkeeperId]);
+  }, []);
 
   const formatDate = date => date.toISOString().split("T")[0];
 
