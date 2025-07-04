@@ -32,7 +32,7 @@ app.use('/api/designs', designsRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/todos', todosRouter);
 
-// 404 handler
+// 404 handler (keep only one, after all routes)
 app.use((req, res) => {
   res.status(404).json({ error: "API route not found" });
 });
@@ -41,10 +41,6 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error("❌ Server error:", err);
   res.status(500).json({ error: "Internal Server Error" });
-});
-// Place this LAST in server.js
-app.use((req, res) => {
-  res.status(404).send("Sorry, can't find that!");
 });
 
 // Start server
