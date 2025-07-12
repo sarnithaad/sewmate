@@ -118,12 +118,11 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
         }
 
         try {
-            // Explicitly define the payload object to potentially resolve the syntax error
-            const billPayload = {
-                ...bill,
+            // Using Object.assign() instead of spread operator to potentially resolve syntax error
+            const billPayload = Object.assign({}, bill, {
                 shopkeeper_id: user.id,
                 design_url: selectedDesignUrl
-            };
+            });
 
             const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
                 method: "POST",
