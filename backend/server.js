@@ -20,6 +20,7 @@ const allowedOrigins = [
     "https://sewmate.vercel.app", // Production
     "https://sewmate-5ktmc0ujt-sarnitha-a-ds-projects.vercel.app", // Old Preview
     "http://localhost:3000", // Local Dev
+    "https://sewmate-jo3kh43oj-sarnitha-a-ds-projects.vercel.app/",
     "https://sewmate-1h1ag142h-sarnitha-a-ds-projects.vercel.app" // New Preview
 ];
 
