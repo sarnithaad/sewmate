@@ -3,11 +3,10 @@ const router = express.Router();
 const db = require("../db");
 const authenticate = require("../middleware/auth");
 
-// ✅ Create a new bill with optional design_url
+// ✅ Create a new bill with optional design_url (now auto-generates bill_number)
 router.post("/", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
     const {
-        bill_number,
         customer_name,
         mobile,
         dress_type,
@@ -16,25 +15,37 @@ router.post("/", authenticate, async (req, res) => {
         measurements = {},
         extras = [],
         total_value,
-        design_url = "" // 🔧 new
+        design_url = ""
     } = req.body;
 
-    // Basic validation
-    if (!bill_number || !customer_name || !mobile || !dress_type || !order_date || !due_date || total_value === undefined) {
-        return res.status(400).json({ error: "Missing required bill fields." });
+    // Basic validation (bill_number is no longer required from frontend)
+    if (!customer_name || !mobile || !dress_type || !order_date || !due_date || total_value === undefined) {
+        return res.status(400).json({ error: "Missing required bill fields (customer name, mobile, dress type, dates, total value)." });
     }
 
     const conn = await db.getConnection();
     await conn.beginTransaction();
 
     try {
+        // 1. Get the last bill_number for this shopkeeper
+        const [lastBill] = await conn.execute(
+            `SELECT MAX(bill_number) AS max_bill_number FROM bills WHERE shopkeeper_id = ?`,
+            [shopkeeperId]
+        );
+
+        let newBillNumber = 1;
+        if (lastBill.length > 0 && lastBill[0].max_bill_number !== null) {
+            newBillNumber = lastBill[0].max_bill_number + 1;
+        }
+
+        // 2. Insert the new bill with the generated bill_number
         const [billResult] = await conn.execute(
             `INSERT INTO bills
                (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status, design_url)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked', ?)`,
             [
                 shopkeeperId,
-                bill_number,
+                newBillNumber, // Use the auto-generated bill number
                 customer_name,
                 mobile,
                 dress_type,
@@ -53,14 +64,11 @@ router.post("/", authenticate, async (req, res) => {
         );
 
         await conn.commit();
-        res.status(201).json({ message: "✅ Bill created", billId });
+        // Return the generated bill_number to the frontend
+        res.status(201).json({ message: "✅ Bill created", billId, bill_number: newBillNumber });
     } catch (err) {
         await conn.rollback();
         console.error("❌ Bill creation error:", err);
-        // More specific error for duplicate bill number if needed
-        if (err.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ error: "Bill number already exists for this shopkeeper." });
-        }
         res.status(500).json({ error: "Failed to create bill" });
     } finally {
         conn.release();
