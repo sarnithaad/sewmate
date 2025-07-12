@@ -2,46 +2,51 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
-const path = require("path"); // Import path module
+const path = require("path");
 
 dotenv.config();
 
-const app = express(); // Define app here
+const app = express();
 
+// ✅ Routers
 const shopkeepersRouter = require("./routes/shopkeepers");
 const billsRouter = require("./routes/bills");
 const designsRouter = require("./routes/designs");
 const customersRouter = require("./routes/customers");
 const todosRouter = require("./routes/todos");
 
+// ✅ Allowed origins (Frontend URLs)
 const allowedOrigins = [
-    "https://sewmate.vercel.app", // production
-    "https://sewmate-5ktmc0ujt-sarnitha-a-ds-projects.vercel.app", // Vercel preview (old)
-    "http://localhost:3000", // development
-    "https://sewmate-1h1ag142h-sarnitha-a-ds-projects.vercel.app" // New Vercel preview URL
+    "https://sewmate.vercel.app", // Production
+    "https://sewmate-5ktmc0ujt-sarnitha-a-ds-projects.vercel.app", // Old Preview
+    "http://localhost:3000", // Local Dev
+    "https://sewmate-1h1ag142h-sarnitha-a-ds-projects.vercel.app" // New Preview
 ];
 
+// ✅ CORS Middleware
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+        if (!origin) return callback(null, true); // Allow server-to-server or mobile clients
         if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error(`Not allowed by CORS: ${origin}`));
         }
     },
-    credentials: true
+    credentials: true // Enable cookies/auth headers if needed
 }));
-app.use(express.json());
-app.use(morgan("dev")); // For logging requests
 
-// Serve static files from the 'uploads' directory
-// This makes images accessible via URLs like http://localhost:10000/uploads/designs/image.jpg
+// ✅ Handle preflight requests (OPTIONS)
+app.options('*', cors());
+
+// ✅ Body parser & logger
+app.use(express.json());
+app.use(morgan("dev"));
+
+// ✅ Serve static files (like images)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-// Routes
+// ✅ API Routes
 app.get("/", (req, res) => {
     res.send("🧵 SewMate API is running 🚀");
 });
@@ -52,22 +57,21 @@ app.use('/api/designs', designsRouter);
 app.use('/api/customers', customersRouter);
 app.use('/api/todos', todosRouter);
 
-// 404 handler (keep only one, after all routes)
+// ✅ 404 handler
 app.use((req, res) => {
     res.status(404).json({ error: "API route not found" });
 });
 
-// Global error handler
+// ✅ Global Error Handler (incl. CORS)
 app.use((err, req, res, next) => {
     console.error("❌ Server error:", err);
-    // Check if it's a CORS error specifically
     if (err.message.includes("Not allowed by CORS")) {
         return res.status(403).json({ error: "CORS policy violation: " + err.message });
     }
     res.status(500).json({ error: "Internal Server Error" });
 });
 
-// Start server
+// ✅ Start Server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`✅ Backend server running on http://localhost:${PORT}`);
