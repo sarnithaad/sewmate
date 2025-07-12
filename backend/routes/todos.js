@@ -8,106 +8,110 @@ const isEmpty = val => !val || val.trim() === "";
 
 // ✅ Add a new todo/task
 router.post("/", authenticate, async (req, res) => {
-  const shopkeeperId = req.shopkeeperId;
-  const { task, due_date, status = "pending" } = req.body;
+    const shopkeeperId = req.shopkeeperId;
+    const { task, due_date, status = "pending" } = req.body;
 
-  if (isEmpty(task) || isEmpty(due_date)) {
-    return res.status(400).json({ error: "Task and due date are required." });
-  }
+    if (isEmpty(task) || isEmpty(due_date)) {
+        return res.status(400).json({ error: "Task and due date are required." });
+    }
 
-  try {
-    const [result] = await db.execute(
-      "INSERT INTO todos (shopkeeper_id, task, due_date, status) VALUES (?, ?, ?, ?)",
-      [shopkeeperId, task.trim(), due_date, status.trim().toLowerCase()]
-    );
-    res.status(201).json({ message: "Todo added successfully", todoId: result.insertId });
-  } catch (err) {
-    console.error("❌ Error inserting todo:", err);
-    res.status(500).json({ error: "Database error while adding todo." });
-  }
+    try {
+        const [result] = await db.execute(
+            "INSERT INTO todos (shopkeeper_id, task, due_date, status) VALUES (?, ?, ?, ?)",
+            [shopkeeperId, task.trim(), due_date, status.trim().toLowerCase()]
+        );
+        res.status(201).json({ message: "Todo added successfully", todoId: result.insertId });
+    } catch (err) {
+        console.error("❌ Error inserting todo:", err);
+        res.status(500).json({ error: "Database error while adding todo." });
+    }
 });
 
 // ✅ Get all todos for the logged-in shopkeeper
 router.get("/", authenticate, async (req, res) => {
-  const shopkeeperId = req.shopkeeperId;
-  try {
-    const [todos] = await db.execute(
-      `SELECT id, task, due_date, status, created_at
-       FROM todos
-       WHERE shopkeeper_id = ?
-       ORDER BY due_date ASC`,
-      [shopkeeperId]
-    );
-    res.json(todos);
-  } catch (err) {
-    console.error("❌ Error fetching todos:", err);
-    res.status(500).json({ error: "Database error while fetching todos." });
-  }
+    const shopkeeperId = req.shopkeeperId;
+    try {
+        const [todos] = await db.execute(
+            `SELECT id, task, due_date, status, created_at
+               FROM todos
+               WHERE shopkeeper_id = ?
+               ORDER BY due_date ASC`,
+            [shopkeeperId]
+        );
+        res.json(todos);
+    } catch (err) {
+        console.error("❌ Error fetching todos:", err);
+        res.status(500).json({ error: "Database error while fetching todos." });
+    }
 });
 
 // ✅ Get a single todo by ID (Fixes GET /api/todos/:id)
 router.get("/:id", authenticate, async (req, res) => {
-  const shopkeeperId = req.shopkeeperId;
-  const todoId = req.params.id;
+    const shopkeeperId = req.shopkeeperId;
+    const todoId = req.params.id;
 
-  try {
-    const [todos] = await db.execute(
-      `SELECT id, task, due_date, status, created_at
-       FROM todos
-       WHERE id = ? AND shopkeeper_id = ?`,
-      [todoId, shopkeeperId]
-    );
-    if (todos.length === 0) {
-      return res.status(404).json({ error: "Todo not found or unauthorized." });
+    try {
+        const [todos] = await db.execute(
+            `SELECT id, task, due_date, status, created_at
+               FROM todos
+               WHERE id = ? AND shopkeeper_id = ?`,
+            [todoId, shopkeeperId]
+        );
+        if (todos.length === 0) {
+            return res.status(404).json({ error: "Todo not found or unauthorized." });
+        }
+        res.json(todos[0]);
+    } catch (err) {
+        console.error("❌ Error fetching single todo:", err);
+        res.status(500).json({ error: "Database error while fetching todo." });
     }
-    res.json(todos[0]);
-  } catch (err) {
-    console.error("❌ Error fetching single todo:", err);
-    res.status(500).json({ error: "Database error while fetching todo." });
-  }
 });
 
-// ✅ Update todo status
+// ✅ Update todo status (Using PATCH for partial update)
 router.patch("/:id/status", authenticate, async (req, res) => {
-  const shopkeeperId = req.shopkeeperId;
-  const todoId = req.params.id;
-  const { status } = req.body;
+    const shopkeeperId = req.shopkeeperId;
+    const todoId = req.params.id;
+    const { status } = req.body;
 
-  if (!status) return res.status(400).json({ error: "Status is required." });
-
-  try {
-    const [result] = await db.execute(
-      `UPDATE todos SET status = ? WHERE id = ? AND shopkeeper_id = ?`,
-      [status.trim().toLowerCase(), todoId, shopkeeperId]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Todo not found or unauthorized." });
+    if (!status) return res.status(400).json({ error: "Status is required." });
+    const validStatuses = ["pending", "completed"]; // Define valid statuses
+    if (!validStatuses.includes(status.toLowerCase())) {
+        return res.status(400).json({ error: "Invalid status provided. Must be 'pending' or 'completed'." });
     }
-    res.json({ message: "✅ Status updated successfully" });
-  } catch (err) {
-    console.error("❌ Error updating status:", err);
-    res.status(500).json({ error: "Database error while updating status." });
-  }
+
+    try {
+        const [result] = await db.execute(
+            `UPDATE todos SET status = ? WHERE id = ? AND shopkeeper_id = ?`,
+            [status.trim().toLowerCase(), todoId, shopkeeperId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Todo not found or unauthorized." });
+        }
+        res.json({ message: "✅ Status updated successfully" });
+    } catch (err) {
+        console.error("❌ Error updating status:", err);
+        res.status(500).json({ error: "Database error while updating status." });
+    }
 });
 
 // ✅ Delete todo
 router.delete("/:id", authenticate, async (req, res) => {
-  const shopkeeperId = req.shopkeeperId;
-  const todoId = req.params.id;
+    const shopkeeperId = req.shopkeeperId;
+    const todoId = req.params.id;
 
-  try {
-    const [result] = await db.execute(
-      "DELETE FROM todos WHERE id = ? AND shopkeeper_id = ?",
-      [todoId, shopkeeperId]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Todo not found or unauthorized." });
+    try {
+        const [result] = await db.execute(
+            "DELETE FROM todos WHERE id = ? AND shopkeeper_id = ?",
+            [todoId, shopkeeperId]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Todo not found or unauthorized." });
+        }
+        res.json({ message: "✅ Todo deleted successfully" });
+    } catch (err) {
+        console.error("❌ Error deleting todo:", err);
+        res.status(500).json({ error: "Database error while deleting todo." });
     }
-    res.json({ message: "✅ Todo deleted successfully" });
-  } catch (err) {
-    console.error("❌ Error deleting todo:", err);
-    res.status(500).json({ error: "Database error while deleting todo." });
-  }
 });
 
 module.exports = router;
