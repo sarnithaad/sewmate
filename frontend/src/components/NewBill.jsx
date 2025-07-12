@@ -18,7 +18,7 @@ const measurementsList = {
 };
 
 // Define parts for design filtering (used in Designs.jsx, but useful here for context if needed)
-const parts = ["front", "back", "sleeve"]; // Define parts here for consistency
+const parts = ["front", "back", "sleeve", "full"]; // Define parts here for consistency
 
 export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
     const [bill, setBill] = useState({
@@ -118,13 +118,20 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
         }
 
         try {
+            // Explicitly define the payload object to potentially resolve the syntax error
+            const billPayload = {
+                ...bill,
+                shopkeeper_id: user.id,
+                design_url: selectedDesignUrl
+            };
+
             const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ ...bill, shopkeeper_id: user.id, design_url: selectedDesignUrl })
+                body: JSON.stringify(billPayload) // Use the explicitly defined payload
             });
             const data = await res.json();
             if (!res.ok) {
