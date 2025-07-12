@@ -29,7 +29,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
         due_date: "",
         measurements: {},
         extras: [],
-        total_value: 0 // Initial total value
+        total_value: 0
     });
 
     const [msg, setMsg] = useState("");
@@ -47,6 +47,24 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
         // Use the generatedBillNumber for the document title
         documentTitle: `SewMate_Bill_${generatedBillNumber || 'New'}`
     });
+
+    // Function to reset the form
+    const resetForm = () => {
+        setBill({
+            customer_name: "",
+            mobile: "",
+            dress_type: "Chudidhar",
+            order_date: new Date().toISOString().split('T')[0],
+            due_date: "",
+            measurements: {},
+            extras: [],
+            total_value: 0
+        });
+        setSelectedDesignUrl("");
+        setGeneratedBillNumber(null);
+        setShowPrint(false);
+        setMsg("");
+    };
 
     // Fetch designs based on selected dressType
     useEffect(() => {
@@ -159,18 +177,8 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                 if (onBillSaved) {
                     onBillSaved();
                 }
-                // Reset form after successful save
-                setBill({
-                    customer_name: "",
-                    mobile: "",
-                    dress_type: "Chudidhar",
-                    order_date: new Date().toISOString().split('T')[0],
-                    due_date: "",
-                    measurements: {},
-                    extras: [],
-                    total_value: 0
-                });
-                setSelectedDesignUrl("");
+                // Do NOT reset the form here. The form data will remain for printing.
+                // Reset will be triggered by a "New Bill" button or page refresh.
             }
         } catch (err) {
             console.error("Save bill error:", err); // Log the actual error
@@ -329,13 +337,22 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     </button>
 
                     {showPrint && (
-                        <button
-                            type="button"
-                            onClick={handlePrint}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                        >
-                            🖨️ Print Bill
-                        </button>
+                        <>
+                            <button
+                                type="button"
+                                onClick={handlePrint}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                            >
+                                🖨️ Print Bill
+                            </button>
+                            <button
+                                type="button"
+                                onClick={resetForm} // New button to reset the form
+                                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                            >
+                                ✨ New Bill
+                            </button>
+                        </>
                     )}
                 </div>
 
