@@ -183,17 +183,28 @@ router.get("/by-date/:date", authenticate, async (req, res) => {
 // ✅ Update bill status
 router.post("/status", authenticate, async (req, res) => {
     const { bill_id, status, status_date } = req.body;
+    const shopkeeperId = req.shopkeeperId;
+
     // Add validation for status
     const validStatuses = ["Booked", "Cut", "Stitched", "Packed", "Delivered"];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: "Invalid status provided." });
     }
 
+    let updateQuery = `UPDATE bills SET status = ?, status_date = ?`;
+    const queryParams = [status, status_date];
+
+    // If status is 'Delivered', also set the delivery_date to the current status_date
+    if (status === 'Delivered') {
+        updateQuery += `, delivery_date = ?`;
+        queryParams.push(status_date);
+    }
+
+    updateQuery += ` WHERE id = ? AND shopkeeper_id = ?`;
+    queryParams.push(bill_id, shopkeeperId);
+
     try {
-        const [result] = await db.execute(
-            `UPDATE bills SET status = ?, status_date = ? WHERE id = ? AND shopkeeper_id = ?`, // Add shopkeeper_id for security
-            [status, status_date, bill_id, req.shopkeeperId]
-        );
+        const [result] = await db.execute(updateQuery, queryParams);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: "Bill not found or unauthorized to update." });
         }
