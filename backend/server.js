@@ -16,8 +16,9 @@ const todosRouter = require("./routes/todos");
 
 const allowedOrigins = [
     "https://sewmate.vercel.app", // production
-    "https://sewmate-5ktmc0ujt-sarnitha-a-ds-projects.vercel.app", // Vercel preview
-    "http://localhost:3000" // development
+    "https://sewmate-5ktmc0ujt-sarnitha-a-ds-projects.vercel.app", // Vercel preview (old)
+    "http://localhost:3000", // development
+    "https://sewmate-1h1ag142h-sarnitha-a-ds-projects.vercel.app" // New Vercel preview URL
 ];
 
 app.use(cors({
