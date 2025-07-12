@@ -27,9 +27,9 @@ router.post("/", authenticate, async (req, res) => {
     await conn.beginTransaction();
 
     try {
-        // 1. Get the last bill_number for this shopkeeper
+        // 1. Get the last bill_number for this shopkeeper, casting to unsigned integer for proper numerical MAX
         const [lastBill] = await conn.execute(
-            `SELECT MAX(bill_number) AS max_bill_number FROM bills WHERE shopkeeper_id = ?`,
+            `SELECT MAX(CAST(bill_number AS UNSIGNED)) AS max_bill_number FROM bills WHERE shopkeeper_id = ?`,
             [shopkeeperId]
         );
 
