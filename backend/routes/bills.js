@@ -122,10 +122,14 @@ router.get("/:id", authenticate, async (req, res) => {
 // ✅ Dashboard deliveries
 router.get('/dashboard-deliveries', authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
+
+    // Calculate dates based on UTC midnight for consistency
     const today = new Date();
-    const todayStr = today.toISOString().split("T")[0];
-    const next2 = new Date();
-    next2.setDate(today.getDate() + 2);
+    today.setUTCHours(0, 0, 0, 0); // Set to midnight UTC
+    const todayStr = today.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    const next2 = new Date(today); // Start from today's UTC midnight
+    next2.setUTCDate(today.getUTCDate() + 2); // Add 2 days in UTC
     const next2Str = next2.toISOString().split("T")[0];
 
     try {
@@ -246,7 +250,10 @@ router.delete("/delivered/:id", authenticate, async (req, res) => {
 // ✅ Overdue tasks (This route is used by OverdueTask.jsx)
 router.get("/overdue", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
+
+    // Calculate today's date based on UTC midnight for consistency
     const today = new Date();
+    today.setUTCHours(0, 0, 0, 0); // Set to midnight UTC
     const todayStr = today.toISOString().split("T")[0]; // YYYY-MM-DD
 
     try {
