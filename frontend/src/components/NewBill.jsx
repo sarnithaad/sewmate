@@ -33,6 +33,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
     });
 
     const [msg, setMsg] = useState("");
+    const [msgType, setMsgType] = useState(""); // 'success' or 'error'
     const [showPrint, setShowPrint] = useState(false);
     const [designs, setDesigns] = useState([]);
     const [selectedDesignUrl, setSelectedDesignUrl] = useState("");
@@ -64,6 +65,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
         setGeneratedBillNumber(null);
         setShowPrint(false);
         setMsg("");
+        setMsgType("");
     };
 
     // Fetch designs based on selected dressType
@@ -140,10 +142,12 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
     const handleSave = async e => {
         e.preventDefault();
         setMsg("");
+        setMsgType("");
         setShowPrint(false); // Hide print preview until successful save
 
         if (!user || !token) {
             setMsg("Shopkeeper not found or not authenticated. Please log in.");
+            setMsgType("error");
             return;
         }
 
@@ -168,8 +172,10 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
             const data = await res.json();
             if (!res.ok) {
                 setMsg(data.error || "Failed to save bill");
+                setMsgType("error");
             } else {
                 setMsg("✅ Bill saved successfully!");
+                setMsgType("success");
                 setGeneratedBillNumber(data.bill_number); // Store the bill number returned by backend
                 setShowPrint(true);
 
@@ -183,38 +189,52 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
         } catch (err) {
             console.error("Save bill error:", err); // Log the actual error
             setMsg("Network error. Please try again.");
+            setMsgType("error");
         }
     };
 
     const selectedMeasurements = measurementsList[bill.dress_type] || [];
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h2 className="text-2xl font-bold text-indigo-700 mb-4">🧾 New Bill Entry</h2>
+        <div className="p-6 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+                <img
+                    src="https://placehold.co/50x50/818cf8/ffffff?text=Bill"
+                    alt="New Bill Icon"
+                    className="h-12 w-12 rounded-full mr-4 shadow-md"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
+                />
+                🧾 New Bill Entry
+            </h2>
 
-            <form className="space-y-4 bg-white p-6 rounded shadow-md" onSubmit={handleSave}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Removed bill_number input field as it's auto-generated */}
+            <form className="space-y-6 bg-white p-8 rounded-xl shadow-xl animate-fade-in-up" onSubmit={handleSave}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Customer Name */}
                     <input
                         type="text"
                         placeholder="Customer Name"
-                        className="border p-2 rounded w-full"
+                        className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                         value={bill.customer_name}
                         onChange={e => handleChange("customer_name", e.target.value)}
                         required
                     />
+                    {/* Mobile */}
                     <input
-                        type="text"
+                        type="tel" // Use type="tel" for mobile numbers
                         placeholder="Mobile"
-                        className="border p-2 rounded w-full"
+                        className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                         value={bill.mobile}
                         onChange={e => handleChange("mobile", e.target.value)}
+                        pattern="[0-9]{10}" // Basic pattern for 10 digits
+                        title="Mobile number must be 10 digits"
                         required
                     />
+                    {/* Dress Type */}
                     <select
                         value={bill.dress_type}
                         onChange={e => handleChange("dress_type", e.target.value)}
-                        className="border p-2 rounded w-full"
+                        className="border border-gray-300 p-3 rounded-lg w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                        required
                     >
                         {dressTypes.map(d => (
                             <option key={d.value} value={d.value}>
@@ -222,19 +242,21 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                             </option>
                         ))}
                     </select>
+                    {/* Order Date */}
                     <label className="block text-sm font-medium text-gray-700">Order Date:
                         <input
                             type="date"
-                            className="border p-2 rounded w-full"
+                            className="border border-gray-300 p-3 rounded-lg w-full mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                             value={bill.order_date}
                             onChange={e => handleChange("order_date", e.target.value)}
                             required
                         />
                     </label>
+                    {/* Due Date */}
                     <label className="block text-sm font-medium text-gray-700">Due Date:
                         <input
                             type="date"
-                            className="border p-2 rounded w-full"
+                            className="border border-gray-300 p-3 rounded-lg w-full mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                             value={bill.due_date}
                             onChange={e => handleChange("due_date", e.target.value)}
                             required
@@ -244,14 +266,16 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
 
                 {/* Measurements */}
                 <div>
-                    <h3 className="font-semibold text-gray-700 mb-2">📏 Measurements (No price)</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <h3 className="font-bold text-xl text-gray-800 mb-3 flex items-center">
+                        <span className="mr-2 text-2xl">📏</span> Measurements (No price)
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {selectedMeasurements.map(m => (
                             <input
                                 key={m}
                                 type="text"
                                 placeholder={m}
-                                className="border p-2 rounded"
+                                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
                                 value={bill.measurements[m] || ""}
                                 onChange={e => handleMeasurementInput(m, e.target.value)}
                             />
@@ -261,29 +285,34 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
 
                 {/* Extras */}
                 <div>
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-semibold text-gray-700">➕ Additional Items (with price)</h3>
+                    <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-bold text-xl text-gray-800 flex items-center">
+                            <span className="mr-2 text-2xl">➕</span> Additional Items (with price)
+                        </h3>
                         <button
                             type="button"
                             onClick={handleAddExtra}
-                            className="text-sm text-blue-600 hover:underline"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300"
                         >
                             + Add Item
                         </button>
                     </div>
+                    {bill.extras.length === 0 && (
+                        <p className="text-gray-500 italic text-center py-2">Click "Add Item" to add extras.</p>
+                    )}
                     {bill.extras.map((extra, index) => (
-                        <div key={index} className="flex gap-2 mb-2">
+                        <div key={index} className="flex gap-4 mb-3 items-center bg-gray-50 p-3 rounded-lg shadow-sm">
                             <input
                                 type="text"
-                                placeholder="Item"
-                                className="border p-2 rounded w-full"
+                                placeholder="Item Name"
+                                className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                                 value={extra.name}
                                 onChange={e => handleExtraChange(index, "name", e.target.value)}
                             />
                             <input
                                 type="number"
-                                placeholder="₹"
-                                className="border p-2 rounded w-28"
+                                placeholder="₹ Price"
+                                className="border border-gray-300 p-2 rounded-lg w-32 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                                 value={extra.price}
                                 onChange={e => handleExtraChange(index, "price", e.target.value)}
                             />
@@ -293,45 +322,62 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
 
                 {/* Design Selector */}
                 <div>
-                    <h3 className="font-semibold text-gray-700 mb-2">🎨 Choose Design (optional) - {bill.dress_type}</h3>
+                    <h3 className="font-bold text-xl text-gray-800 mb-3 flex items-center">
+                        <span className="mr-2 text-2xl">🎨</span> Choose Design (optional) - <span className="text-indigo-700 ml-1">{bill.dress_type}</span>
+                    </h3>
                     {designFetchError && (
-                        <p className="text-red-600 text-sm mb-2">{designFetchError}</p>
+                        <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-4 shadow-md animate-slide-down">
+                            ❌ {designFetchError}
+                        </div>
                     )}
-                    <div className="flex gap-4 flex-wrap">
+                    <div className="flex gap-4 flex-wrap justify-center">
                         {designs.length === 0 && !designFetchError ? (
-                            <p className="text-gray-500">No uploaded designs available for {bill.dress_type}.</p>
+                            <div className="text-gray-500 italic text-center py-4">
+                                <p>No uploaded designs available for {bill.dress_type}.</p>
+                                <img
+                                    src="https://placehold.co/100x100/f0f9ff/3b82f6?text=No+Design"
+                                    alt="No Designs Icon"
+                                    className="mx-auto mt-4 rounded-full shadow-sm"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
+                                />
+                            </div>
                         ) : (
                             designs.map(design => (
                                 <div
                                     key={design.id}
-                                    className={`border rounded cursor-pointer p-1 ${
-                                        selectedDesignUrl === design.image_url
-                                            ? "ring-2 ring-indigo-600"
-                                            : "hover:ring"
-                                    }`}
-                                    onClick={() => setSelectedDesignUrl(design.image_url)}
+                                    className={`relative border-2 rounded-lg cursor-pointer p-1 transition-all duration-300 transform hover:scale-105 hover:shadow-lg
+                                        ${selectedDesignUrl === `${process.env.REACT_APP_API_URL}${design.image_url}`
+                                            ? "ring-4 ring-indigo-600 border-indigo-600 shadow-xl"
+                                            : "border-gray-300 shadow-md"
+                                        }`}
+                                    onClick={() => setSelectedDesignUrl(`${process.env.REACT_APP_API_URL}${design.image_url}`)}
                                 >
                                     <img
-                                        src={`${process.env.REACT_APP_API_URL}${design.image_url}`} 
+                                        src={`${process.env.REACT_APP_API_URL}${design.image_url}`}
                                         alt={design.name}
-                                        className="h-24 w-24 object-cover rounded"
-                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/96x96/cccccc/333333?text=No+Image"; }} // Fallback
+                                        className="h-28 w-28 object-cover rounded-md"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/112x112/cccccc/333333?text=No+Image"; }} // Fallback
                                     />
-                                    <div className="text-center text-xs mt-1">{design.name} ({design.part})</div> 
+                                    <div className="text-center text-xs mt-1 font-medium">{design.name} ({design.part})</div>
+                                    {selectedDesignUrl === `${process.env.REACT_APP_API_URL}${design.image_url}` && (
+                                        <div className="absolute top-1 right-1 bg-indigo-600 text-white rounded-full p-1 text-xs">
+                                            ✔
+                                        </div>
+                                    )}
                                 </div>
                             ))
                         )}
                     </div>
                 </div>
 
-                <div className="text-lg font-semibold mt-4">
+                <div className="text-3xl font-bold text-green-700 mt-6 p-4 bg-green-50 rounded-lg shadow-md text-center">
                     Total: ₹{bill.total_value.toLocaleString("en-IN")}
                 </div>
 
-                <div className="flex flex-wrap gap-4 mt-4">
+                <div className="flex flex-wrap gap-4 mt-6 justify-center">
                     <button
                         type="submit"
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                        className="bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-75"
                     >
                         💾 Save & Show Print Preview
                     </button>
@@ -341,14 +387,14 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                             <button
                                 type="button"
                                 onClick={handlePrint}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                                className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75"
                             >
                                 🖨️ Print Bill
                             </button>
                             <button
                                 type="button"
                                 onClick={resetForm} // New button to reset the form
-                                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                                className="bg-gray-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-75"
                             >
                                 ✨ New Bill
                             </button>
@@ -356,17 +402,57 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     )}
                 </div>
 
-                {msg && <div className="mt-2 text-blue-600">{msg}</div>}
+                {msg && (
+                    <div className={`mt-4 p-3 rounded-lg font-medium text-center animate-slide-down
+                        ${msgType === "success" ? "bg-green-100 text-green-700 border border-green-300 shadow-md" : "bg-red-100 text-red-700 border border-red-300 shadow-md"}`}
+                    >
+                        {msg}
+                    </div>
+                )}
             </form>
 
             {showPrint && generatedBillNumber && ( // Only show printable bill if bill number is generated
-                <div className="mt-8">
-                    <div ref={printRef} className="bg-white p-6 rounded shadow">
+                <div className="mt-8 bg-white p-8 rounded-xl shadow-xl animate-fade-in-up">
+                    <h3 className="text-2xl font-bold text-center text-indigo-700 mb-6">Print Preview</h3>
+                    <div ref={printRef}>
                         {/* Pass the generated bill number to PrintableBill */}
                         <PrintableBill bill={{ ...bill, bill_number: generatedBillNumber, design_url: selectedDesignUrl }} />
                     </div>
                 </div>
             )}
+            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+            <style>
+                {`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.7s ease-out forwards;
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
+                }
+                .animate-slide-down {
+                    animation: slideDown 0.5s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse 1.5s infinite ease-in-out;
+                }
+                `}
+            </style>
         </div>
     );
 }
