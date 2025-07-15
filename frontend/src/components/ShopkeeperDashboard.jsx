@@ -22,6 +22,7 @@ export default function ShopkeeperDashboard() {
 
     const todayStr = formatDateToUTC(new Date());
 
+    // 🔁 Fetch Delivery Summary
     useEffect(() => {
         if (!token) {
             setError("Unauthorized: No token found");
@@ -36,9 +37,18 @@ export default function ShopkeeperDashboard() {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
-                const data = await res.json();
+                const raw = await res.json();
+                const data = raw.data || raw;
+
                 if (!res.ok) throw new Error(data.error || "Failed to fetch deliveries");
-                setDeliveries(data);
+
+                console.log("🔍 Parsed Deliveries:", data); // Debug — remove later
+
+                setDeliveries({
+                    overdue: data.overdue || [],
+                    today: data.today || [],
+                    upcoming: data.upcoming || []
+                });
             })
             .catch(err => {
                 setError(err.message || "Error fetching delivery dashboard");
@@ -47,6 +57,7 @@ export default function ShopkeeperDashboard() {
             .finally(() => setLoading(false));
     }, [token, dashboardRefreshKey]);
 
+    // 🔁 Fetch Selected Date Bills
     useEffect(() => {
         if (!token || !selectedDate) {
             setSelectedDateBills([]);
@@ -60,8 +71,11 @@ export default function ShopkeeperDashboard() {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
-                const data = await res.json();
+                const raw = await res.json();
+                const data = raw.data || raw;
+
                 if (!res.ok) throw new Error(data.error || "Failed to fetch bills for date");
+
                 setSelectedDateBills(Array.isArray(data.bills) ? data.bills : []);
             })
             .catch(err => {
@@ -158,6 +172,7 @@ export default function ShopkeeperDashboard() {
                 </>
             )}
 
+            {/* Animation styles */}
             <style>
                 {`
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -177,6 +192,7 @@ export default function ShopkeeperDashboard() {
     );
 }
 
+// ✅ DeliveryList Component
 function DeliveryList({ title, bills, color }) {
     const colors = {
         red: { bg: "bg-red-50", border: "border-red-500", text: "text-red-700", placeholder: "fca5a5", icon: "🚨" },
