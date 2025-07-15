@@ -44,7 +44,7 @@ export default function OverdueTask() {
     }, [user, token, dashboardRefreshKey]); // Add dashboardRefreshKey to dependencies
 
     const getStatusStyle = status => {
-        const base = "px-2 py-1 rounded-full text-xs font-medium";
+        const base = "px-3 py-1 rounded-full text-xs font-semibold"; // Adjusted padding and font-weight
         switch (status) {
             case "Booked":
                 return `${base} bg-purple-100 text-purple-800`; // New status style
@@ -62,51 +62,98 @@ export default function OverdueTask() {
     };
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h2 className="text-2xl font-bold text-rose-700 mb-4">📌 Overdue Tasks</h2>
+        <div className="p-6 bg-gradient-to-br from-red-50 to-orange-50 min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-rose-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+                <img
+                    src="https://placehold.co/50x50/fca5a5/ffffff?text=Overdue"
+                    alt="Overdue Tasks Icon"
+                    className="h-12 w-12 rounded-full mr-4 shadow-md"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
+                />
+                🚨 Overdue Tasks
+            </h2>
 
             {error && (
-                <div className="bg-red-100 text-red-700 p-3 rounded border border-red-300 mb-4">
-                    {error}
+                <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6 shadow-md animate-slide-down">
+                    ❌ {error}
                 </div>
             )}
 
             {loading ? (
-                <p className="text-gray-600">Loading overdue tasks...</p>
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading overdue tasks...</p>
             ) : (
-                <div className="overflow-x-auto bg-white shadow rounded">
-                    <table className="min-w-full text-sm text-left border-collapse">
-                        <thead className="bg-rose-100 text-gray-800">
-                            <tr>
-                                <th className="px-4 py-2 border">Customer</th>
-                                <th className="px-4 py-2 border">Bill No</th> {/* Added Bill No */}
-                                <th className="px-4 py-2 border">Current Status</th>
-                                <th className="px-4 py-2 border">Due Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {overdue.length === 0 && !error ? (
+                <div className="overflow-x-auto bg-white rounded-xl shadow-xl animate-fade-in-up">
+                    {overdue.length === 0 ? (
+                        <div className="text-center py-10 text-gray-500 text-lg">
+                            <p>🎉 No overdue tasks found! You're all caught up.</p>
+                            <img
+                                src="https://placehold.co/150x150/dcfce7/16a34a?text=Clear"
+                                alt="No Overdue Icon"
+                                className="mx-auto mt-6 rounded-full shadow-md"
+                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Error'; }}
+                            />
+                        </div>
+                    ) : (
+                        <table className="min-w-full text-sm text-left border-collapse">
+                            <thead className="bg-gradient-to-r from-rose-100 to-red-100 text-gray-800 uppercase tracking-wider">
                                 <tr>
-                                    <td colSpan="4" className="text-center py-6 text-gray-500">
-                                        ✅ No overdue tasks found!
-                                    </td>
+                                    <th className="px-4 py-3 border-b-2 border-rose-200">Customer</th>
+                                    <th className="px-4 py-3 border-b-2 border-rose-200">Bill No</th> {/* Added Bill No */}
+                                    <th className="px-4 py-3 border-b-2 border-rose-200">Current Status</th>
+                                    <th className="px-4 py-3 border-b-2 border-rose-200">Due Date</th>
+                                    <th className="px-4 py-3 border-b-2 border-rose-200">Value</th>
                                 </tr>
-                            ) : (
-                                overdue.map(bill => (
-                                    <tr key={bill.id} className="border-t hover:bg-gray-50">
-                                        <td className="px-4 py-2 border">{bill.customer_name}</td>
-                                        <td className="px-4 py-2 border">{bill.bill_number}</td> {/* Display bill number */}
-                                        <td className="px-4 py-2 border">
+                            </thead>
+                            <tbody>
+                                {overdue.map(bill => (
+                                    <tr key={bill.id} className="border-t border-gray-200 hover:bg-red-50 transition-colors duration-200 ease-in-out">
+                                        <td className="px-4 py-3">{bill.customer_name}</td>
+                                        <td className="px-4 py-3 font-semibold text-rose-700">{bill.bill_number}</td> {/* Display bill number */}
+                                        <td className="px-4 py-3">
                                             <span className={getStatusStyle(bill.status)}>{bill.status}</span>
                                         </td>
-                                        <td className="px-4 py-2 border">{bill.due_date}</td>
+                                        <td className="px-4 py-3 text-red-600 font-medium">{bill.due_date}</td>
+                                        <td className="px-4 py-3 text-gray-700">₹{bill.total_value}</td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             )}
+            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+            <style>
+                {`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.7s ease-out forwards;
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
+                }
+                .animate-slide-down {
+                    animation: slideDown 0.5s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse 1.5s infinite ease-in-out;
+                }
+                `}
+            </style>
         </div>
     );
 }
