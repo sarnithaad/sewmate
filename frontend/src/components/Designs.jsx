@@ -2,15 +2,6 @@ import React, { useState, useEffect } from "react";
 import DesignUpload from "./DesignUpload";
 import { useAuth } from "../context/AuthContext";
 
-const designTypes = [
-    { label: "Chudidhar", value: "Chudidhar" },
-    { label: "Blouse", value: "Blouse" },
-    { label: "Frock", value: "Frock" },
-    { label: "Lehanga", value: "Lehanga" }
-];
-
-const parts = ["front", "back", "sleeve", "full"];
-
 export default function Designs() {
     const [dressType, setDressType] = useState(designTypes[0].value);
     const [part, setPart] = useState(parts[0]);
@@ -59,10 +50,10 @@ export default function Designs() {
     };
 
     return (
-        <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen font-inter">
-            <h2 className="text-4xl font-extrabold text-purple-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+        <div className="p-6 min-h-screen bg-gradient-to-br from-[#F8F1E5] to-[#EFE3D5] font-inter">
+            <h2 className="text-4xl font-extrabold text-[#5C4033] mb-8 rounded-xl p-4 bg-[#FDF6EC] shadow-xl text-center animate-fade-in flex items-center justify-center">
                 <img
-                    src="https://placehold.co/50x50/a78bfa/ffffff?text=Design"
+                    src="https://placehold.co/50x50/C19A6B/ffffff?text=Design"
                     alt="Designs Icon"
                     className="h-12 w-12 rounded-full mr-4 shadow-md"
                     onError={(e) => {
@@ -74,8 +65,8 @@ export default function Designs() {
             </h2>
 
             {/* Dress Type */}
-            <div className="mb-6 bg-white p-6 rounded-xl shadow-md animate-fade-in-up">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <div className="mb-6 bg-[#FDF6EC] p-6 rounded-xl shadow-md animate-fade-in-up border border-[#D2B48C]">
+                <h3 className="text-xl font-semibold text-[#5C4033] mb-4 flex items-center">
                     <span className="mr-2 text-2xl">👗</span> Select Dress Type
                 </h3>
                 <div className="flex flex-wrap gap-3">
@@ -86,8 +77,8 @@ export default function Designs() {
                             type="button"
                             className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md ${
                                 dressType === dt.value
-                                    ? "bg-indigo-600 text-white border-indigo-700 shadow-lg"
-                                    : "bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:text-indigo-800"
+                                    ? "bg-[#5C4033] text-white border-[#4B3621] shadow-lg"
+                                    : "bg-white border-[#D2B48C] text-[#5C4033] hover:bg-[#EFE3D5] hover:text-[#5C4033]"
                             }`}
                         >
                             {dt.label}
@@ -97,8 +88,8 @@ export default function Designs() {
             </div>
 
             {/* Part Selection */}
-            <div className="mb-8 bg-white p-6 rounded-xl shadow-md animate-fade-in-up">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <div className="mb-8 bg-[#FDF6EC] p-6 rounded-xl shadow-md animate-fade-in-up border border-[#D2B48C]">
+                <h3 className="text-xl font-semibold text-[#5C4033] mb-4 flex items-center">
                     <span className="mr-2 text-2xl">✂️</span> Select Part
                 </h3>
                 <div className="flex flex-wrap gap-3">
@@ -109,8 +100,8 @@ export default function Designs() {
                             type="button"
                             className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md ${
                                 part === p
-                                    ? "bg-blue-600 text-white border-blue-700 shadow-lg"
-                                    : "bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-800"
+                                    ? "bg-[#A67B5B] text-white border-[#8B5E3C] shadow-lg"
+                                    : "bg-white border-[#D2B48C] text-[#5C4033] hover:bg-[#EFE3D5] hover:text-[#5C4033]"
                             }`}
                         >
                             {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -127,21 +118,21 @@ export default function Designs() {
             />
 
             {/* Uploaded Designs */}
-            <h3 className="text-2xl font-bold text-indigo-700 mt-10 mb-6 flex items-center animate-fade-in-up">
+            <h3 className="text-2xl font-bold text-[#5C4033] mt-10 mb-6 flex items-center animate-fade-in-up">
                 <span className="mr-2 text-3xl">🖼️</span> Uploaded Designs ({dressType} - {part.charAt(0).toUpperCase() + part.slice(1)})
             </h3>
 
             {loading ? (
-                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading designs...</p>
+                <p className="text-[#5C4033] text-xl p-6 bg-[#FDF6EC] rounded-lg shadow-lg text-center animate-pulse">Loading designs...</p>
             ) : error ? (
                 <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg shadow-md animate-slide-down">
                     ❌ {error}
                 </div>
             ) : designs.length === 0 ? (
-                <div className="text-center py-10 text-gray-500 text-lg bg-white rounded-xl shadow-md animate-fade-in-up">
+                <div className="text-center py-10 text-[#5C4033] text-lg bg-[#FDF6EC] rounded-xl shadow-md animate-fade-in-up border border-[#D2B48C]">
                     <p>No designs found for this category.</p>
                     <img
-                        src="https://placehold.co/150x150/f5f5dc/8b4513?text=Empty"
+                        src="https://placehold.co/150x150/FDF6EC/5C4033?text=Empty"
                         alt="No Designs Icon"
                         className="mx-auto mt-6 rounded-full shadow-md"
                         onError={(e) => {
@@ -153,19 +144,22 @@ export default function Designs() {
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fade-in-up">
                     {designs.map(design => (
-                        <div key={design.id} className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-gray-200">
+                        <div
+                            key={design.id}
+                            className="bg-[#FDF6EC] rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-[#D2B48C]"
+                        >
                             <img
                                 src={`${process.env.REACT_APP_API_URL}${design.image_url}`}
                                 alt={design.name}
-                                className="w-full h-40 object-cover border-b border-gray-200"
+                                className="w-full h-40 object-cover border-b border-[#D2B48C]"
                                 onError={(e) => {
                                     e.target.onerror = null;
                                     e.target.src = "https://placehold.co/160x160/cccccc/333333?text=No+Image";
                                 }}
                             />
                             <div className="p-4">
-                                <p className="font-bold text-gray-800 text-lg mb-1">{design.name}</p>
-                                <p className="text-sm text-gray-600">{design.dress_type} - {design.part}</p>
+                                <p className="font-bold text-[#5C4033] text-lg mb-1">{design.name}</p>
+                                <p className="text-sm text-[#8B5E3C]">{design.dress_type} - {design.part}</p>
                             </div>
                         </div>
                     ))}
