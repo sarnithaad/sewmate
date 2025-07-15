@@ -164,12 +164,13 @@ router.get('/dashboard-deliveries', authenticate, async (req, res) => {
 // ✅ Bills by due date
 router.get("/by-date/:date", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
-    const date = req.params.date;
+    const date = req.params.date; // This 'date' is now a YYYY-MM-DD UTC string from frontend
 
     try {
         const [bills] = await db.execute(
+            // MODIFIED: Use DATE() function to compare only the date part
             `SELECT id, bill_number, customer_name, due_date, total_value, status
-                FROM bills WHERE shopkeeper_id = ? AND due_date = ?
+                FROM bills WHERE shopkeeper_id = ? AND DATE(due_date) = ?
                 ORDER BY bill_number ASC`, // Order for consistency
             [shopkeeperId, date]
         );
