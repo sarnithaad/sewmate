@@ -12,11 +12,11 @@ const {
 
 // Create MySQL pool
 const pool = mysql.createPool({
-    host: DB_HOST,
-    port: Number(DB_PORT),
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME,
+    host: "mysql-2003-sharnithadhandapani-d3a8.c.aivencloud.com",
+    port: 28177,
+    user: "avnadmin",
+    password: "AVNS_K6mIDQVbua-l8d_JvPy",
+    database: defaultdb,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
