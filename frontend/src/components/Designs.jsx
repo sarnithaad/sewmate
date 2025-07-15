@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import DesignUpload from "./DesignUpload";
-import { useAuth } from "../context/AuthContext"; // Import useAuth hook
+import { useAuth } from "../context/AuthContext";
 
 const designTypes = [
     { label: "Chudidhar", value: "Chudidhar" },
     { label: "Blouse", value: "Blouse" },
     { label: "Frock", value: "Frock" },
-    { label: "Lehanga", value: "Lehanga" } // Added Lehanga
+    { label: "Lehanga", value: "Lehanga" }
 ];
 
-const parts = ["front", "back", "sleeve", "full"]; // Added 'full' for general designs
+const parts = ["front", "back", "sleeve", "full"];
 
 export default function Designs() {
     const [dressType, setDressType] = useState(designTypes[0].value);
@@ -18,9 +18,8 @@ export default function Designs() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const { token, user } = useAuth(); // Get token and user from AuthContext
+    const { token, user } = useAuth();
 
-    // Function to fetch designs based on current filters
     const fetchDesigns = async () => {
         if (!token || !user) {
             setError("Unauthorized: Please log in to view designs.");
@@ -31,17 +30,16 @@ export default function Designs() {
 
         setLoading(true);
         setError("");
+
         try {
             const res = await fetch(
                 `${process.env.REACT_APP_API_URL}/api/designs?dress_type=${dressType}&part=${part}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.error || "Failed to fetch designs");
-            }
+
+            if (!res.ok) throw new Error(data.error || "Failed to fetch designs");
+
             setDesigns(data);
         } catch (err) {
             console.error("Error fetching designs:", err);
@@ -52,14 +50,12 @@ export default function Designs() {
         }
     };
 
-    // Fetch designs whenever dressType, part, token, or user changes
     useEffect(() => {
         fetchDesigns();
     }, [dressType, part, token, user]);
 
-    // Callback for when a new design is successfully uploaded
     const handleUploadSuccess = () => {
-        fetchDesigns(); // Re-fetch designs to update the list
+        fetchDesigns();
     };
 
     return (
@@ -69,12 +65,15 @@ export default function Designs() {
                     src="https://placehold.co/50x50/a78bfa/ffffff?text=Design"
                     alt="Designs Icon"
                     className="h-12 w-12 rounded-full mr-4 shadow-md"
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
+                    onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://placehold.co/50x50/cccccc/333333?text=Err";
+                    }}
                 />
                 🎨 Designs
             </h2>
 
-            {/* Dress Type Selection */}
+            {/* Dress Type */}
             <div className="mb-6 bg-white p-6 rounded-xl shadow-md animate-fade-in-up">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                     <span className="mr-2 text-2xl">👗</span> Select Dress Type
@@ -85,12 +84,11 @@ export default function Designs() {
                             key={dt.value}
                             onClick={() => setDressType(dt.value)}
                             type="button"
-                            className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md
-                                ${
-                                    dressType === dt.value
-                                        ? "bg-indigo-600 text-white border-indigo-700 shadow-lg"
-                                        : "bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:text-indigo-800"
-                                }`}
+                            className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md ${
+                                dressType === dt.value
+                                    ? "bg-indigo-600 text-white border-indigo-700 shadow-lg"
+                                    : "bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:text-indigo-800"
+                            }`}
                         >
                             {dt.label}
                         </button>
@@ -109,12 +107,11 @@ export default function Designs() {
                             key={p}
                             onClick={() => setPart(p)}
                             type="button"
-                            className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md
-                                ${
-                                    part === p
-                                        ? "bg-blue-600 text-white border-blue-700 shadow-lg"
-                                        : "bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-800"
-                                }`}
+                            className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md ${
+                                part === p
+                                    ? "bg-blue-600 text-white border-blue-700 shadow-lg"
+                                    : "bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-800"
+                            }`}
                         >
                             {p.charAt(0).toUpperCase() + p.slice(1)}
                         </button>
@@ -122,13 +119,14 @@ export default function Designs() {
                 </div>
             </div>
 
-            {/* Upload Component - Pass onUploadSuccess */}
+            {/* Upload Component */}
             <DesignUpload
                 dressType={dressType}
                 part={part}
                 onUploadSuccess={handleUploadSuccess}
             />
 
+            {/* Uploaded Designs */}
             <h3 className="text-2xl font-bold text-indigo-700 mt-10 mb-6 flex items-center animate-fade-in-up">
                 <span className="mr-2 text-3xl">🖼️</span> Uploaded Designs ({dressType} - {part.charAt(0).toUpperCase() + part.slice(1)})
             </h3>
@@ -146,7 +144,10 @@ export default function Designs() {
                         src="https://placehold.co/150x150/f5f5dc/8b4513?text=Empty"
                         alt="No Designs Icon"
                         className="mx-auto mt-6 rounded-full shadow-md"
-                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Error'; }}
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://placehold.co/150x150/cccccc/333333?text=Error";
+                        }}
                     />
                 </div>
             ) : (
@@ -157,7 +158,10 @@ export default function Designs() {
                                 src={`${process.env.REACT_APP_API_URL}${design.image_url}`}
                                 alt={design.name}
                                 className="w-full h-40 object-cover border-b border-gray-200"
-                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/160x160/cccccc/333333?text=No+Image"; }} // Fallback
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = "https://placehold.co/160x160/cccccc/333333?text=No+Image";
+                                }}
                             />
                             <div className="p-4">
                                 <p className="font-bold text-gray-800 text-lg mb-1">{design.name}</p>
@@ -167,11 +171,16 @@ export default function Designs() {
                     ))}
                 </div>
             )}
-            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+
+            {/* Animation Styles */}
             <style>
                 {`
                 @keyframes fadeIn {
                     from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
                 @keyframes slideDown {
@@ -182,15 +191,11 @@ export default function Designs() {
                     0%, 100% { opacity: 1; }
                     50% { opacity: 0.7; }
                 }
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
                 }
                 .animate-fade-in-up {
                     animation: fadeInUp 0.7s ease-out forwards;
-                }
-                .animate-fade-in {
-                    animation: fadeIn 0.8s ease-out forwards;
                 }
                 .animate-slide-down {
                     animation: slideDown 0.5s ease-out forwards;
