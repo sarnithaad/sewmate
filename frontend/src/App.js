@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
     BrowserRouter as Router,
     Routes,
@@ -7,6 +7,7 @@ import {
     Navigate,
     useLocation
 } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext"; // Import AuthProvider and useAuth
 
 import AdminNavBar from "./components/AdminNavBar";
 import ShopkeeperRegister from "./components/ShopkeeperRegister";
@@ -29,41 +30,21 @@ function ScrollToTop() {
     return null;
 }
 
-// Protect routes
+// Protect routes - now uses AuthContext
 function PrivateRoute({ children }) {
-    // This still relies on localStorage, which is fine for route protection,
-    // as the main App component's 'user' state will handle the NavBar visibility.
-    const token = localStorage.getItem("token"); 
-    return token ? children : <Navigate to="/login" />;
+    const { user, token } = useAuth(); // Get user and token from AuthContext
+    // Check both user object and token for robust authentication check
+    return user && token ? children : <Navigate to="/login" />;
 }
 
-function App() {
-    // Initialize user state from localStorage on initial load
-    const [user, setUser] = useState(() => {
-        const saved = localStorage.getItem("shopkeeper");
-        return saved ? JSON.parse(saved) : null;
-    });
-
-    // This useEffect syncs the 'user' state to localStorage whenever 'user' changes.
-    // It handles both setting and clearing localStorage based on the 'user' state.
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem("shopkeeper", JSON.stringify(user));
-        } else {
-            // Clear localStorage if user logs out or is set to null
-            localStorage.removeItem("shopkeeper");
-            localStorage.removeItem("token");
-        }
-    }, [user]); // Dependency array ensures this runs when 'user' state changes
+function AppContent() { // Renamed App to AppContent to wrap with AuthProvider
+    const { user, logout, triggerDashboardRefresh } = useAuth(); // Get user and logout from AuthContext
 
     return (
         <Router>
             <ScrollToTop />
-            {/* Show NavBar only when 'user' state is not null.
-                The 'user' state will now be updated immediately after login
-                by the onLogin prop passed to ShopkeeperLogin.
-            */}
-            {user && <AdminNavBar onLogout={() => setUser(null)} />}
+            {/* Show NavBar only when 'user' is logged in */}
+            {user && <AdminNavBar onLogout={logout} />} {/* Pass logout function */}
 
             <main className="max-w-6xl mx-auto px-4 py-6">
                 <Routes>
@@ -72,10 +53,10 @@ function App() {
                         path="/"
                         element={user ? <Navigate to="/dashboard" /> : <ShopkeeperRegister />}
                     />
-                    {/* Login - Pass setUser as onLogin prop */}
+                    {/* Login - No need to pass onLogin prop explicitly, useAuth handles it */}
                     <Route
                         path="/login"
-                        element={user ? <Navigate to="/dashboard" /> : <ShopkeeperLogin onLogin={setUser} />}
+                        element={user ? <Navigate to="/dashboard" /> : <ShopkeeperLogin />}
                     />
 
                     {/* Protected Routes */}
@@ -107,7 +88,8 @@ function App() {
                         path="/new-bill"
                         element={
                             <PrivateRoute>
-                                <NewBill />
+                                {/* Pass triggerDashboardRefresh to NewBill */}
+                                <NewBill onBillSaved={triggerDashboardRefresh} />
                             </PrivateRoute>
                         }
                     />
@@ -115,7 +97,8 @@ function App() {
                         path="/bill-status"
                         element={
                             <PrivateRoute>
-                                <BillStatus />
+                                {/* Pass triggerDashboardRefresh to BillStatus */}
+                                <BillStatus onStatusUpdated={triggerDashboardRefresh} />
                             </PrivateRoute>
                         }
                     />
@@ -155,4 +138,11 @@ function App() {
     );
 }
 
-export default App;
+// Wrap AppContent with AuthProvider
+export default function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+    );
+}
