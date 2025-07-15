@@ -80,7 +80,7 @@ export default function Revenue() {
             });
     }, [user, token, dashboardRefreshKey]); // Dependencies for overall revenue fetch
 
-    // MODIFIED: Function to format date consistently to YYYY-MM-DD UTC
+    // Function to format date consistently to YYYY-MM-DD UTC
     const formatDate = date => {
         const d = new Date(date);
         // Get UTC components to ensure consistency regardless of local timezone
@@ -96,11 +96,11 @@ export default function Revenue() {
     // Revenue calculations for daily expected/actual (uses 'bills' state)
     const calcRevenue = dateStr => {
         const expected = bills
-            // MODIFIED: Ensure due_date is formatted to UTC before comparison
+            // Ensure due_date is formatted to UTC before comparison
             .filter(b => formatDate(new Date(b.due_date)) === dateStr)
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         const actual = bills
-            // MODIFIED: Ensure delivery_date is formatted to UTC before comparison
+            // Ensure delivery_date is formatted to UTC before comparison
             .filter(b => formatDate(new Date(b.delivery_date)) === dateStr && b.status === "Delivered")
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         return { expected, actual };
@@ -112,58 +112,102 @@ export default function Revenue() {
     const isLoading = loadingBills || loadingOverallRevenue; // Combined loading state
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen font-inter">
-            <h2 className="text-3xl font-bold text-indigo-700 mb-6 rounded-md p-3 bg-white shadow-sm">📊 Revenue Dashboard</h2>
+        <div className="p-6 bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in">
+                <span className="mr-3">📈</span> Revenue Dashboard
+            </h2>
 
             {error && (
-                <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6 shadow-md">
+                <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6 shadow-md animate-slide-down">
                     ❌ {error}
                 </div>
             )}
 
             {isLoading ? (
-                <p className="text-gray-600 text-lg p-4 bg-white rounded-lg shadow-md">Loading revenue data...</p>
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading revenue data...</p>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                     {/* Overall Delivered Revenue */}
-                    <div className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white shadow-lg p-6 rounded-lg transform transition-transform duration-300 hover:scale-105">
-                        <h3 className="text-xl font-semibold mb-4 flex items-center">
-                            <span className="mr-2 text-2xl">💰</span> Total Delivered Revenue
+                    <div className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-xl p-8 rounded-xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl flex flex-col items-center justify-center">
+                        <img
+                            src="https://placehold.co/100x100/ffffff/000000?text=Total"
+                            alt="Total Revenue Icon"
+                            className="mb-4 rounded-full border-4 border-white shadow-lg"
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
+                        />
+                        <h3 className="text-2xl font-bold mb-2 flex items-center">
+                            <span className="mr-2 text-3xl">💰</span> Total Delivered Revenue
                         </h3>
-                        <p className="text-4xl font-bold">₹{totalOverallRevenue.toLocaleString("en-IN")}</p>
-                        <p className="text-sm opacity-80 mt-2">Sum of all delivered bills.</p>
+                        <p className="text-5xl font-extrabold">₹{totalOverallRevenue.toLocaleString("en-IN")}</p>
+                        <p className="text-sm opacity-90 mt-3 text-center">Sum of all delivered bills across time.</p>
                     </div>
 
                     {/* Today's Revenue Summary */}
-                    <div className="bg-white shadow-md p-6 rounded-lg transform transition-transform duration-300 hover:scale-105">
-                        <h3 className="text-xl font-semibold text-green-700 mb-4 flex items-center">
-                            <span className="mr-2 text-2xl">📅</span> Today's Revenue
+                    <div className="bg-white shadow-xl p-8 rounded-xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl flex flex-col items-center justify-center">
+                        <img
+                            src="https://placehold.co/100x100/e0ffe0/006400?text=Today"
+                            alt="Today's Revenue Icon"
+                            className="mb-4 rounded-full border-4 border-green-500 shadow-lg"
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
+                        />
+                        <h3 className="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                            <span className="mr-2 text-3xl">📅</span> Today's Revenue
                         </h3>
-                        <div className="space-y-2 text-lg">
-                            <p>🧾 Expected: <span className="font-semibold text-gray-800">₹{todayExpected.toLocaleString("en-IN")}</span></p>
-                            <p>✅ Actual: <span className="font-semibold text-gray-800">₹{todayActual.toLocaleString("en-IN")}</span></p>
+                        <div className="space-y-3 text-xl text-center">
+                            <p>🧾 Expected: <span className="font-bold text-gray-800">₹{todayExpected.toLocaleString("en-IN")}</span></p>
+                            <p>✅ Actual: <span className="font-bold text-gray-800">₹{todayActual.toLocaleString("en-IN")}</span></p>
                         </div>
                     </div>
 
                     {/* Revenue by Selected Date */}
-                    <div className="bg-white shadow-md p-6 rounded-lg col-span-1 md:col-span-2 lg:col-span-1 transform transition-transform duration-300 hover:scale-105">
-                        <h3 className="text-xl font-semibold text-blue-700 mb-4 flex items-center">
-                            <span className="mr-2 text-2xl">📆</span> Revenue on Selected Date
+                    <div className="bg-white shadow-xl p-8 rounded-xl col-span-1 md:col-span-2 lg:col-span-1 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl flex flex-col items-center">
+                        <img
+                            src="https://placehold.co/100x100/e0f2f7/000080?text=Select"
+                            alt="Select Date Icon"
+                            className="mb-4 rounded-full border-4 border-blue-500 shadow-lg"
+                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
+                        />
+                        <h3 className="text-2xl font-semibold text-blue-700 mb-6 flex items-center">
+                            <span className="mr-2 text-3xl">📆</span> Revenue on Selected Date
                         </h3>
-                        <div className="flex flex-col items-center">
-                            <Calendar
-                                onChange={setSelectedDate}
-                                value={selectedDate}
-                                className="mb-4 rounded-lg shadow-md border border-gray-200 p-2"
-                            />
-                            <div className="space-y-2 text-lg w-full text-center">
-                                <p>🧾 Expected (due): <span className="font-semibold text-gray-800">₹{selectedExpected.toLocaleString("en-IN")}</span></p>
-                                <p>✅ Actual (delivered): <span className="font-semibold text-gray-800">₹{selectedActual.toLocaleString("en-IN")}</span></p>
-                            </div>
+                        <Calendar
+                            onChange={setSelectedDate}
+                            value={selectedDate}
+                            className="mb-6 rounded-lg shadow-lg border border-gray-300 p-3 w-full max-w-xs"
+                        />
+                        <div className="space-y-3 text-xl w-full text-center">
+                            <p>🧾 Expected (due): <span className="font-bold text-gray-800">₹{selectedExpected.toLocaleString("en-IN")}</span></p>
+                            <p>✅ Actual (delivered): <span className="font-bold text-gray-800">₹{selectedActual.toLocaleString("en-IN")}</span></p>
                         </div>
                     </div>
                 </div>
             )}
+            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+            <style>
+                {`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
+                }
+                .animate-slide-down {
+                    animation: slideDown 0.5s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse 1.5s infinite ease-in-out;
+                }
+                `}
+            </style>
         </div>
     );
 }
