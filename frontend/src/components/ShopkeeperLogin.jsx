@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Import useAuth hook
 
-export default function ShopkeeperLogin() {
+export default function ShopkeeperLogin() { // No longer accepts onLogin prop
     const [form, setForm] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -28,6 +28,7 @@ export default function ShopkeeperLogin() {
                 setError(data.error || "Login failed");
             } else {
                 // Call the login function from AuthContext to update global state
+                // This handles setting localStorage for user and token
                 login(data.shopkeeper, data.token);
                 navigate("/dashboard");
             }
