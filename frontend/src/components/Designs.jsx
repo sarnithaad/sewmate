@@ -63,23 +63,34 @@ export default function Designs() {
     };
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h2 className="text-3xl font-bold text-indigo-700 mb-6">🎨 Designs</h2>
+        <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-purple-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+                <img
+                    src="https://placehold.co/50x50/a78bfa/ffffff?text=Design"
+                    alt="Designs Icon"
+                    className="h-12 w-12 rounded-full mr-4 shadow-md"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
+                />
+                🎨 Designs
+            </h2>
 
             {/* Dress Type Selection */}
-            <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Select Dress Type</h3>
+            <div className="mb-6 bg-white p-6 rounded-xl shadow-md animate-fade-in-up">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <span className="mr-2 text-2xl">👗</span> Select Dress Type
+                </h3>
                 <div className="flex flex-wrap gap-3">
                     {designTypes.map(dt => (
                         <button
                             key={dt.value}
                             onClick={() => setDressType(dt.value)}
                             type="button"
-                            className={`px-4 py-2 rounded shadow-sm border transition ${
-                                dressType === dt.value
-                                    ? "bg-indigo-600 text-white border-indigo-700"
-                                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
-                            }`}
+                            className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md
+                                ${
+                                    dressType === dt.value
+                                        ? "bg-indigo-600 text-white border-indigo-700 shadow-lg"
+                                        : "bg-white border-gray-300 text-gray-700 hover:bg-indigo-50 hover:text-indigo-800"
+                                }`}
                         >
                             {dt.label}
                         </button>
@@ -88,19 +99,22 @@ export default function Designs() {
             </div>
 
             {/* Part Selection */}
-            <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Select Part</h3>
+            <div className="mb-8 bg-white p-6 rounded-xl shadow-md animate-fade-in-up">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <span className="mr-2 text-2xl">✂️</span> Select Part
+                </h3>
                 <div className="flex flex-wrap gap-3">
                     {parts.map(p => (
                         <button
                             key={p}
                             onClick={() => setPart(p)}
                             type="button"
-                            className={`px-4 py-2 rounded shadow-sm border transition ${
-                                part === p
-                                    ? "bg-blue-600 text-white border-blue-700"
-                                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
-                            }`}
+                            className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md
+                                ${
+                                    part === p
+                                        ? "bg-blue-600 text-white border-blue-700 shadow-lg"
+                                        : "bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-800"
+                                }`}
                         >
                             {p.charAt(0).toUpperCase() + p.slice(1)}
                         </button>
@@ -115,36 +129,77 @@ export default function Designs() {
                 onUploadSuccess={handleUploadSuccess}
             />
 
-            <h3 className="text-xl font-bold text-indigo-700 mt-8 mb-4">
-                Uploaded Designs ({dressType} - {part.charAt(0).toUpperCase() + part.slice(1)})
+            <h3 className="text-2xl font-bold text-indigo-700 mt-10 mb-6 flex items-center animate-fade-in-up">
+                <span className="mr-2 text-3xl">🖼️</span> Uploaded Designs ({dressType} - {part.charAt(0).toUpperCase() + part.slice(1)})
             </h3>
 
             {loading ? (
-                <p className="text-gray-600">Loading designs...</p>
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading designs...</p>
             ) : error ? (
-                <div className="text-red-600 bg-red-100 p-3 rounded border border-red-300">
-                    {error}
+                <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg shadow-md animate-slide-down">
+                    ❌ {error}
                 </div>
             ) : designs.length === 0 ? (
-                <p className="text-gray-500">No designs found for this category.</p>
+                <div className="text-center py-10 text-gray-500 text-lg bg-white rounded-xl shadow-md animate-fade-in-up">
+                    <p>No designs found for this category.</p>
+                    <img
+                        src="https://placehold.co/150x150/f5f5dc/8b4513?text=Empty"
+                        alt="No Designs Icon"
+                        className="mx-auto mt-6 rounded-full shadow-md"
+                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Error'; }}
+                    />
+                </div>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-fade-in-up">
                     {designs.map(design => (
-                        <div key={design.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div key={design.id} className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-gray-200">
                             <img
                                 src={`${process.env.REACT_APP_API_URL}${design.image_url}`}
                                 alt={design.name}
-                                className="w-full h-32 object-cover"
-                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/128x128/cccccc/333333?text=No+Image"; }} // Fallback
+                                className="w-full h-40 object-cover border-b border-gray-200"
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/160x160/cccccc/333333?text=No+Image"; }} // Fallback
                             />
-                            <div className="p-3">
-                                <p className="font-semibold text-gray-800 text-sm">{design.name}</p>
-                                <p className="text-xs text-gray-600">{design.dress_type} - {design.part}</p>
+                            <div className="p-4">
+                                <p className="font-bold text-gray-800 text-lg mb-1">{design.name}</p>
+                                <p className="text-sm text-gray-600">{design.dress_type} - {design.part}</p>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
+            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+            <style>
+                {`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.7s ease-out forwards;
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
+                }
+                .animate-slide-down {
+                    animation: slideDown 0.5s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse 1.5s infinite ease-in-out;
+                }
+                `}
+            </style>
         </div>
     );
 }
