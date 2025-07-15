@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
     BrowserRouter as Router,
     Routes,
@@ -7,7 +7,6 @@ import {
     Navigate,
     useLocation
 } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext"; // Import AuthProvider and useAuth
 
 import AdminNavBar from "./components/AdminNavBar";
 import ShopkeeperRegister from "./components/ShopkeeperRegister";
@@ -30,21 +29,41 @@ function ScrollToTop() {
     return null;
 }
 
-// Protect routes - now uses AuthContext
+// Protect routes
 function PrivateRoute({ children }) {
-    const { user, token } = useAuth(); // Get user and token from AuthContext
-    // Check both user object and token for robust authentication check
-    return user && token ? children : <Navigate to="/login" />;
+    // This still relies on localStorage, which is fine for route protection,
+    // as the main App component's 'user' state will handle the NavBar visibility.
+    const token = localStorage.getItem("token"); 
+    return token ? children : <Navigate to="/login" />;
 }
 
-function AppContent() { // Renamed App to AppContent to wrap with AuthProvider
-    const { user, logout, triggerDashboardRefresh } = useAuth(); // Get user and logout from AuthContext
+function App() {
+    // Initialize user state from localStorage on initial load
+    const [user, setUser] = useState(() => {
+        const saved = localStorage.getItem("shopkeeper");
+        return saved ? JSON.parse(saved) : null;
+    });
+
+    // This useEffect syncs the 'user' state to localStorage whenever 'user' changes.
+    // It handles both setting and clearing localStorage based on the 'user' state.
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem("shopkeeper", JSON.stringify(user));
+        } else {
+            // Clear localStorage if user logs out or is set to null
+            localStorage.removeItem("shopkeeper");
+            localStorage.removeItem("token");
+        }
+    }, [user]); // Dependency array ensures this runs when 'user' state changes
 
     return (
         <Router>
             <ScrollToTop />
-            {/* Show NavBar only when 'user' is logged in */}
-            {user && <AdminNavBar onLogout={logout} />} {/* Pass logout function */}
+            {/* Show NavBar only when 'user' state is not null.
+                The 'user' state will now be updated immediately after login
+                by the onLogin prop passed to ShopkeeperLogin.
+            */}
+            {user && <AdminNavBar onLogout={() => setUser(null)} />}
 
             <main className="max-w-6xl mx-auto px-4 py-6">
                 <Routes>
@@ -53,10 +72,10 @@ function AppContent() { // Renamed App to AppContent to wrap with AuthProvider
                         path="/"
                         element={user ? <Navigate to="/dashboard" /> : <ShopkeeperRegister />}
                     />
-                    {/* Login - No need to pass onLogin prop explicitly, useAuth handles it */}
+                    {/* Login - Pass setUser as onLogin prop */}
                     <Route
                         path="/login"
-                        element={user ? <Navigate to="/dashboard" /> : <ShopkeeperLogin />}
+                        element={user ? <Navigate to="/dashboard" /> : <ShopkeeperLogin onLogin={setUser} />}
                     />
 
                     {/* Protected Routes */}
@@ -88,8 +107,7 @@ function AppContent() { // Renamed App to AppContent to wrap with AuthProvider
                         path="/new-bill"
                         element={
                             <PrivateRoute>
-                                {/* Pass triggerDashboardRefresh to NewBill */}
-                                <NewBill onBillSaved={triggerDashboardRefresh} />
+                                <NewBill />
                             </PrivateRoute>
                         }
                     />
@@ -97,8 +115,7 @@ function AppContent() { // Renamed App to AppContent to wrap with AuthProvider
                         path="/bill-status"
                         element={
                             <PrivateRoute>
-                                {/* Pass triggerDashboardRefresh to BillStatus */}
-                                <BillStatus onStatusUpdated={triggerDashboardRefresh} />
+                                <BillStatus />
                             </PrivateRoute>
                         }
                     />
@@ -138,11 +155,4 @@ function AppContent() { // Renamed App to AppContent to wrap with AuthProvider
     );
 }
 
-// Wrap AppContent with AuthProvider
-export default function App() {
-    return (
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
-    );
-}
+export default App;
