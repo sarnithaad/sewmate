@@ -109,12 +109,12 @@ export default function DesignUpload({ dressType = "Unknown", part = "General", 
     return (
         <form
             onSubmit={handleUpload}
-            className="bg-[#FDF6EC] p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-6 border border-[#D2B48C] mb-8 animate-fade-in-up font-inter"
+            className="bg-[#FDF0F3] p-6 rounded-xl shadow-xl flex flex-col md:flex-row items-center gap-6 border border-[#E0C0C6] mb-8 animate-fade-in-up font-inter"
         >
             <div className="flex flex-col gap-3 w-full md:w-auto flex-grow">
-                <label className="text-lg font-semibold text-[#5C4033] flex items-center">
+                <label className="text-lg font-semibold text-[#754F4F] flex items-center">
                     <img
-                        src="https://placehold.co/30x30/FDF6EC/5C4033?text=Up"
+                        src="https://placehold.co/30x30/FDF0F3/754F4F?text=Up"
                         alt="Upload Icon"
                         className="h-7 w-7 rounded-full mr-2 shadow-sm"
                         onError={(e) => {
@@ -122,29 +122,29 @@ export default function DesignUpload({ dressType = "Unknown", part = "General", 
                             e.target.src = "https://placehold.co/30x30/cccccc/333333?text=Err";
                         }}
                     />
-                    Upload Design for <span className="ml-1 text-[#5C4033] font-bold">{dressType}</span> -{" "}
-                    <span className="ml-1 text-[#A67B5B] font-bold">{part}</span>
+                    Upload Design for <span className="ml-1 text-[#754F4F] font-bold">{dressType}</span> -{" "}
+                    <span className="ml-1 text-[#D1A6AD] font-bold">{part}</span>
                 </label>
 
                 <input
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    className="block w-full text-sm text-[#5C4033]
+                    className="block w-full text-sm text-[#754F4F]
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-full file:border-0
                         file:text-sm file:font-semibold
-                        file:bg-[#FDF6EC] file:text-[#5C4033]
-                        hover:file:bg-[#E6D3BA] cursor-pointer
-                        focus:outline-none focus:ring-2 focus:ring-[#5C4033] focus:ring-opacity-75"
+                        file:bg-[#F2E5E8] file:text-[#754F4F]
+                        hover:file:bg-[#E0C0C6] cursor-pointer
+                        focus:outline-none focus:ring-2 focus:ring-[#D1A6AD] focus:ring-opacity-75"
                 />
 
                 {file && (
-                    <span className="text-sm text-[#5C4033] mt-1 italic">Selected: {file.name}</span>
+                    <span className="text-sm text-[#754F4F] mt-1 italic">Selected: {file.name}</span>
                 )}
 
                 {imagePreview && (
-                    <div className="mt-4 border border-[#D2B48C] rounded-lg overflow-hidden shadow-md">
+                    <div className="mt-4 border border-[#E0C0C6] rounded-lg overflow-hidden shadow-md">
                         <img
                             src={imagePreview}
                             alt="Preview"
@@ -160,7 +160,7 @@ export default function DesignUpload({ dressType = "Unknown", part = "General", 
                 className={`px-6 py-3 rounded-full text-base font-bold transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg ${
                     uploading
                         ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                        : "bg-[#5C4033] text-white hover:bg-[#A67B5B] focus:outline-none focus:ring-2 focus:ring-[#A67B5B] focus:ring-opacity-75"
+                        : "bg-[#D1A6AD] text-white hover:bg-[#C2949D] focus:outline-none focus:ring-2 focus:ring-[#E0B8BE] focus:ring-opacity-75"
                 }`}
             >
                 {uploading ? (
