@@ -80,7 +80,15 @@ export default function Revenue() {
             });
     }, [user, token, dashboardRefreshKey]); // Dependencies for overall revenue fetch
 
-    const formatDate = date => date.toISOString().split("T")[0];
+    // MODIFIED: Function to format date consistently to YYYY-MM-DD UTC
+    const formatDate = date => {
+        const d = new Date(date);
+        // Get UTC components to ensure consistency regardless of local timezone
+        const year = d.getUTCFullYear();
+        const month = (d.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+        const day = d.getUTCDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
     const todayStr = formatDate(new Date());
     const selectedStr = formatDate(selectedDate);
@@ -88,10 +96,10 @@ export default function Revenue() {
     // Revenue calculations for daily expected/actual (uses 'bills' state)
     const calcRevenue = dateStr => {
         const expected = bills
-            .filter(b => b.due_date === dateStr)
+            .filter(b => formatDate(new Date(b.due_date)) === dateStr) // Ensure due_date is also formatted consistently
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         const actual = bills
-            .filter(b => b.delivery_date === dateStr && b.status === "Delivered")
+            .filter(b => formatDate(new Date(b.delivery_date)) === dateStr && b.status === "Delivered") // Ensure delivery_date is also formatted consistently
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         return { expected, actual };
     };
