@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext"; // Import useAuth hook
+import React, { useEffect, useRef, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function CustomerList() {
     const [bills, setBills] = useState([]);
@@ -8,7 +8,8 @@ export default function CustomerList() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const { token, user } = useAuth(); // Get token and user from AuthContext
+    const { token, user } = useAuth();
+    const bookingsRef = useRef(null);
 
     useEffect(() => {
         if (!user || !token) {
@@ -44,11 +45,9 @@ export default function CustomerList() {
                 setLoading(false);
                 setBills([]);
             });
-    }, [user, token]); // Depend on user and token
+    }, [user, token]);
 
-    const customers = Array.from(
-        new Set(bills.map(b => b.customer_name))
-    ).sort();
+    const customers = Array.from(new Set(bills.map(b => b.customer_name))).sort();
 
     const filteredCustomers = customers.filter(c =>
         c.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,6 +56,12 @@ export default function CustomerList() {
     const customerBookings = bills.filter(
         bill => bill.customer_name === selectedCustomer
     );
+
+    const scrollToBookings = () => {
+        setTimeout(() => {
+            bookingsRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    };
 
     return (
         <div className="p-6 min-h-screen bg-gradient-to-br from-green-50 to-blue-50 font-inter">
@@ -93,11 +98,9 @@ export default function CustomerList() {
 
                     {/* Customer List */}
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8 animate-fade-in-up">
-                        {filteredCustomers.length === 0 && searchTerm !== "" ? (
-                            <p className="col-span-full text-center text-gray-500 text-lg py-4">No customers found matching "{searchTerm}"</p>
-                        ) : filteredCustomers.length === 0 && searchTerm === "" ? (
+                        {filteredCustomers.length === 0 ? (
                             <div className="col-span-full text-center text-gray-500 text-lg py-4">
-                                <p>No customers available.</p>
+                                <p>No customers {searchTerm ? `matching "${searchTerm}"` : "available"}.</p>
                                 <img
                                     src="https://placehold.co/150x150/f0f9ff/3b82f6?text=Empty"
                                     alt="No Customers Icon"
@@ -109,15 +112,16 @@ export default function CustomerList() {
                             filteredCustomers.map((customer) => (
                                 <button
                                     key={customer}
-                                    onClick={() => setSelectedCustomer(customer)}
+                                    onClick={() => {
+                                        setSelectedCustomer(customer);
+                                        scrollToBookings();
+                                    }}
                                     className={`text-base px-4 py-3 rounded-xl border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg
-                                    ${
-                                        selectedCustomer === customer
-                                            ? "bg-blue-600 text-white border-blue-700 shadow-lg"
+                                    ${selectedCustomer === customer
+                                            ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white border-blue-700 shadow-lg scale-105"
                                             : "bg-white hover:bg-blue-100 text-blue-700 border-blue-300 shadow-md"
-                                    }`}
+                                        }`}
                                 >
-                                    {/* Optional: Add a simple icon or initial here */}
                                     <span className="mr-2">👤</span> {customer}
                                 </button>
                             ))
@@ -126,16 +130,27 @@ export default function CustomerList() {
 
                     {/* Customer Booking Details */}
                     {selectedCustomer && (
-                        <div className="bg-white shadow-xl p-8 rounded-xl animate-fade-in-up">
-                            <h3 className="text-2xl font-bold mb-6 text-green-700 flex items-center">
-                                <img
-                                    src="https://placehold.co/40x40/dcfce7/16a34a?text=Book"
-                                    alt="Bookings Icon"
-                                    className="h-10 w-10 rounded-full mr-3 shadow-sm"
-                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/40x40/cccccc/333333?text=Err'; }}
-                                />
-                                Bookings for <span className="text-blue-800 ml-2">{selectedCustomer}</span>
-                            </h3>
+                        <div ref={bookingsRef} className="bg-white shadow-xl p-8 rounded-xl animate-fade-in-up">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-2xl font-bold text-green-700 flex items-center">
+                                    <img
+                                        src="https://placehold.co/40x40/dcfce7/16a34a?text=Book"
+                                        alt="Bookings Icon"
+                                        className="h-10 w-10 rounded-full mr-3 shadow-sm"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/40x40/cccccc/333333?text=Err'; }}
+                                    />
+                                    Bookings for <span className="text-blue-800 ml-2">{selectedCustomer}</span>
+                                </h3>
+                                <div className="text-sm text-right text-gray-600">
+                                    <div>Total Bookings: <strong>{customerBookings.length}</strong></div>
+                                    <div>
+                                        Total Value:{" "}
+                                        <strong className="text-green-600">
+                                            ₹{customerBookings.reduce((sum, b) => sum + (b.total_value || 0), 0)}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
 
                             {customerBookings.length === 0 ? (
                                 <p className="text-gray-500 text-lg text-center py-4">No bookings found for this customer.</p>
@@ -152,7 +167,7 @@ export default function CustomerList() {
                                         </thead>
                                         <tbody>
                                             {customerBookings.map((bill) => (
-                                                <tr key={bill.id} className="border-t border-gray-200 hover:bg-gray-50 transition-colors duration-200 ease-in-out">
+                                                <tr key={bill.id} className="border-t border-gray-200 hover:bg-gray-50 transition-colors duration-200 ease-in-out animate-fade-in-up">
                                                     <td className="px-4 py-3 font-semibold text-blue-700">{bill.bill_number}</td>
                                                     <td className="px-4 py-3 text-gray-700">{bill.order_date}</td>
                                                     <td className="px-4 py-3 text-gray-700">{bill.due_date}</td>
@@ -167,7 +182,8 @@ export default function CustomerList() {
                     )}
                 </>
             )}
-            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+
+            {/* Animation Styles */}
             <style>
                 {`
                 @keyframes fadeIn {
