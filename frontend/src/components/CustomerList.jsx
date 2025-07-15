@@ -59,80 +59,147 @@ export default function CustomerList() {
     );
 
     return (
-        <div className="p-6 min-h-screen bg-gray-50">
-            <h2 className="text-2xl font-bold text-blue-700 mb-4">Customer List</h2>
+        <div className="p-6 min-h-screen bg-gradient-to-br from-green-50 to-blue-50 font-inter">
+            <h2 className="text-4xl font-extrabold text-blue-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+                <img
+                    src="https://placehold.co/50x50/60a5fa/ffffff?text=Cust"
+                    alt="Customer List Icon"
+                    className="h-12 w-12 rounded-full mr-4 shadow-md"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
+                />
+                👥 Customer List
+            </h2>
 
-            {loading && <div className="text-lg">Loading...</div>}
-            {error && <div className="text-red-600 bg-red-100 p-2 rounded">{error}</div>}
-
-            {!loading && !error && (
+            {loading ? (
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading customers...</p>
+            ) : (
                 <>
+                    {error && (
+                        <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6 shadow-md animate-slide-down">
+                            ❌ {error}
+                        </div>
+                    )}
+
                     {/* Search Box */}
-                    <div className="mb-4 max-w-sm">
+                    <div className="mb-6 max-w-lg mx-auto bg-white rounded-lg shadow-lg p-4 animate-fade-in-up">
                         <input
                             type="text"
-                            placeholder="Search customer..."
-                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="🔍 Search customer..."
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-3 focus:ring-blue-300 transition-all duration-200 text-lg"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
                     {/* Customer List */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
-                        {filteredCustomers.map((customer) => (
-                            <button
-                                key={customer}
-                                onClick={() => setSelectedCustomer(customer)}
-                                className={`text-sm px-3 py-2 rounded border
-                                  ${
-                                      selectedCustomer === customer
-                                          ? "bg-blue-600 text-white"
-                                          : "bg-white hover:bg-blue-100 text-blue-700"
-                                  }`}
-                            >
-                                {customer}
-                            </button>
-                        ))}
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8 animate-fade-in-up">
+                        {filteredCustomers.length === 0 && searchTerm !== "" ? (
+                            <p className="col-span-full text-center text-gray-500 text-lg py-4">No customers found matching "{searchTerm}"</p>
+                        ) : filteredCustomers.length === 0 && searchTerm === "" ? (
+                            <div className="col-span-full text-center text-gray-500 text-lg py-4">
+                                <p>No customers available.</p>
+                                <img
+                                    src="https://placehold.co/150x150/f0f9ff/3b82f6?text=Empty"
+                                    alt="No Customers Icon"
+                                    className="mx-auto mt-6 rounded-full shadow-md"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Error'; }}
+                                />
+                            </div>
+                        ) : (
+                            filteredCustomers.map((customer) => (
+                                <button
+                                    key={customer}
+                                    onClick={() => setSelectedCustomer(customer)}
+                                    className={`text-base px-4 py-3 rounded-xl border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg
+                                    ${
+                                        selectedCustomer === customer
+                                            ? "bg-blue-600 text-white border-blue-700 shadow-lg"
+                                            : "bg-white hover:bg-blue-100 text-blue-700 border-blue-300 shadow-md"
+                                    }`}
+                                >
+                                    {/* Optional: Add a simple icon or initial here */}
+                                    <span className="mr-2">👤</span> {customer}
+                                </button>
+                            ))
+                        )}
                     </div>
 
                     {/* Customer Booking Details */}
                     {selectedCustomer && (
-                        <div className="bg-white shadow-md p-6 rounded-lg">
-                            <h3 className="text-xl font-semibold mb-4 text-green-700">
-                                Bookings for {selectedCustomer}
+                        <div className="bg-white shadow-xl p-8 rounded-xl animate-fade-in-up">
+                            <h3 className="text-2xl font-bold mb-6 text-green-700 flex items-center">
+                                <img
+                                    src="https://placehold.co/40x40/dcfce7/16a34a?text=Book"
+                                    alt="Bookings Icon"
+                                    className="h-10 w-10 rounded-full mr-3 shadow-sm"
+                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/40x40/cccccc/333333?text=Err'; }}
+                                />
+                                Bookings for <span className="text-blue-800 ml-2">{selectedCustomer}</span>
                             </h3>
 
                             {customerBookings.length === 0 ? (
-                                <p className="text-gray-500">No bookings found for this customer.</p>
+                                <p className="text-gray-500 text-lg text-center py-4">No bookings found for this customer.</p>
                             ) : (
-                                <table className="w-full text-sm border">
-                                    <thead className="bg-gray-100">
-                                        <tr>
-                                            <th className="p-2 border">Bill No</th> {/* Added Bill No */}
-                                            <th className="p-2 border">Booking Date</th>
-                                            <th className="p-2 border">Due Date</th>
-                                            <th className="p-2 border">Bill Value</th>
-                                            {/* <th className="p-2 border">Material Type</th> Removed as it's not in your bill data */}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {customerBookings.map((bill) => (
-                                            <tr key={bill.id}> {/* Changed key to bill.id */}
-                                                <td className="p-2 border">{bill.bill_number}</td> {/* Display bill number */}
-                                                <td className="p-2 border">{bill.order_date}</td>
-                                                <td className="p-2 border">{bill.due_date}</td>
-                                                <td className="p-2 border">₹{bill.total_value}</td>
-                                                {/* <td className="p-2 border">{bill.material_type}</td> Removed */}
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full text-base text-left border-collapse">
+                                        <thead className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 uppercase tracking-wider">
+                                            <tr>
+                                                <th className="px-4 py-3 border-b-2 border-gray-300">Bill No</th>
+                                                <th className="px-4 py-3 border-b-2 border-gray-300">Booking Date</th>
+                                                <th className="px-4 py-3 border-b-2 border-gray-300">Due Date</th>
+                                                <th className="px-4 py-3 border-b-2 border-gray-300">Bill Value</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {customerBookings.map((bill) => (
+                                                <tr key={bill.id} className="border-t border-gray-200 hover:bg-gray-50 transition-colors duration-200 ease-in-out">
+                                                    <td className="px-4 py-3 font-semibold text-blue-700">{bill.bill_number}</td>
+                                                    <td className="px-4 py-3 text-gray-700">{bill.order_date}</td>
+                                                    <td className="px-4 py-3 text-gray-700">{bill.due_date}</td>
+                                                    <td className="px-4 py-3 font-semibold text-green-600">₹{bill.total_value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                     )}
                 </>
             )}
+            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+            <style>
+                {`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
+                }
+                .animate-slide-down {
+                    animation: slideDown 0.5s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse 1.5s infinite ease-in-out;
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.7s ease-out forwards;
+                }
+                `}
+            </style>
         </div>
     );
 }
