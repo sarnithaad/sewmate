@@ -312,12 +312,12 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                                     onClick={() => setSelectedDesignUrl(design.image_url)}
                                 >
                                     <img
-                                        src={`${process.env.REACT_APP_API_URL}${design.image_url}`} {/* Use full URL for images */}
+                                        src={`${process.env.REACT_APP_API_URL}${design.image_url}`} 
                                         alt={design.name}
                                         className="h-24 w-24 object-cover rounded"
                                         onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/96x96/cccccc/333333?text=No+Image"; }} // Fallback
                                     />
-                                    <div className="text-center text-xs mt-1">{design.name} ({design.part})</div> {/* Show design name and part */}
+                                    <div className="text-center text-xs mt-1">{design.name} ({design.part})</div> 
                                 </div>
                             ))
                         )}
