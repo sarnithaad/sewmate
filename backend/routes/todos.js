@@ -7,25 +7,39 @@ const authenticate = require("../middleware/auth");
 const isEmpty = val => !val || val.trim() === "";
 
 // ✅ Add a new todo/task
-router.post("/", authenticate, async (req, res) => {
+// ✅ Full update of a todo (task, due_date, status)
+router.put("/:id", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
-    const { task, due_date, status = "pending" } = req.body;
+    const todoId = req.params.id;
+    const { task, due_date, status } = req.body;
 
-    if (isEmpty(task) || isEmpty(due_date)) {
-        return res.status(400).json({ error: "Task and due date are required." });
+    if (!task || !due_date || !status) {
+        return res.status(400).json({ error: "Task, due date, and status are required." });
+    }
+
+    const validStatuses = ["pending", "completed"];
+    if (!validStatuses.includes(status.toLowerCase())) {
+        return res.status(400).json({ error: "Invalid status. Must be 'pending' or 'completed'." });
     }
 
     try {
         const [result] = await db.execute(
-            "INSERT INTO todos (shopkeeper_id, task, due_date, status) VALUES (?, ?, ?, ?)",
-            [shopkeeperId, task.trim(), due_date, status.trim().toLowerCase()]
+            `UPDATE todos SET task = ?, due_date = ?, status = ?
+             WHERE id = ? AND shopkeeper_id = ?`,
+            [task.trim(), due_date, status.trim().toLowerCase(), todoId, shopkeeperId]
         );
-        res.status(201).json({ message: "Todo added successfully", todoId: result.insertId });
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Todo not found or unauthorized." });
+        }
+
+        res.json({ message: "✅ Todo updated successfully" });
     } catch (err) {
-        console.error("❌ Error inserting todo:", err);
-        res.status(500).json({ error: "Database error while adding todo." });
+        console.error("❌ Error updating todo:", err);
+        res.status(500).json({ error: "Database error while updating todo." });
     }
 });
+
 
 // ✅ Get all todos for the logged-in shopkeeper
 router.get("/", authenticate, async (req, res) => {
