@@ -6,7 +6,6 @@ export default function BillStatus({ onStatusUpdated }) {
     const [bills, setBills] = useState([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
-
     const { token, user } = useAuth();
 
     useEffect(() => {
@@ -73,15 +72,15 @@ export default function BillStatus({ onStatusUpdated }) {
     };
 
     return (
-        <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen font-inter">
+        <div className="p-6 bg-gradient-to-br from-[#FDF6EC] to-[#D2B48C] min-h-screen font-inter">
             <div className="flex items-center justify-center mb-8 animate-fade-in">
                 <img
-                    src="https://placehold.co/60x60/4f46e5/ffffff?text=📋"
+                    src="https://placehold.co/60x60/5C4033/ffffff?text=📋"
                     alt="Status Icon"
                     className="h-14 w-14 rounded-full shadow-lg mr-4"
                     onError={(e) => { e.target.src = 'https://placehold.co/60x60/cccccc/333333?text=Err'; }}
                 />
-                <h2 className="text-3xl font-extrabold text-indigo-800">Bill Status Tracker</h2>
+                <h2 className="text-3xl font-extrabold text-[#5C4033]">Bill Status Tracker</h2>
             </div>
 
             {error && (
@@ -95,10 +94,10 @@ export default function BillStatus({ onStatusUpdated }) {
                     🔄 Loading bills...
                 </div>
             ) : bills.length === 0 ? (
-                <div className="text-center py-10 text-gray-600">
+                <div className="text-center py-10 text-[#5C4033]">
                     <p className="text-xl">🎉 No active bills. You're all caught up!</p>
                     <img
-                        src="https://placehold.co/150x150/e0ffe0/006400?text=Done"
+                        src="https://placehold.co/150x150/fdf6ec/5C4033?text=Done"
                         alt="Done Icon"
                         className="mx-auto mt-6 rounded-full shadow"
                         onError={(e) => { e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Done'; }}
@@ -107,7 +106,7 @@ export default function BillStatus({ onStatusUpdated }) {
             ) : (
                 <div className="overflow-x-auto bg-white rounded-xl shadow-xl animate-fade-in-up">
                     <table className="min-w-full text-sm border-collapse">
-                        <thead className="bg-indigo-100 text-indigo-800 uppercase tracking-wide text-left text-xs">
+                        <thead className="bg-[#D2B48C] text-[#5C4033] uppercase tracking-wide text-left text-xs">
                             <tr>
                                 <th className="px-5 py-3 border-b">Customer</th>
                                 <th className="px-5 py-3 border-b">Bill No</th>
@@ -119,10 +118,10 @@ export default function BillStatus({ onStatusUpdated }) {
                             {bills.map(bill => (
                                 <tr
                                     key={bill.id}
-                                    className="border-t hover:bg-indigo-50 transition duration-200 ease-in-out"
+                                    className="border-t hover:bg-[#FDF6EC] transition duration-200 ease-in-out"
                                 >
                                     <td className="px-5 py-3">{bill.customer_name}</td>
-                                    <td className="px-5 py-3 font-semibold text-indigo-700">{bill.bill_number}</td>
+                                    <td className="px-5 py-3 font-semibold text-[#5C4033]">{bill.bill_number}</td>
                                     <td className="px-5 py-3">
                                         <StatusDropdown
                                             value={bill.status}
@@ -139,7 +138,6 @@ export default function BillStatus({ onStatusUpdated }) {
                 </div>
             )}
 
-            {/* Animation styles */}
             <style>{`
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
                 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
