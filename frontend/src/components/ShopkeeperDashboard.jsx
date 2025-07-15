@@ -12,6 +12,16 @@ export default function ShopkeeperDashboard() {
 
     const { token, dashboardRefreshKey } = useAuth(); // Get token and refreshKey from AuthContext
 
+    // Helper function to format date consistently to YYYY-MM-DD UTC
+    const formatDateToUTC = date => {
+        const d = new Date(date);
+        // Get UTC components to ensure consistency regardless of local timezone
+        const year = d.getUTCFullYear();
+        const month = (d.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+        const day = d.getUTCDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     // Fetch dashboard deliveries
     useEffect(() => {
         if (!token) {
@@ -53,7 +63,9 @@ export default function ShopkeeperDashboard() {
         }
 
         setError(""); // Clear previous errors for date-specific fetch
-        const dateStr = selectedDate.toISOString().split("T")[0];
+        // MODIFIED: Use the new formatDateToUTC function
+        const dateStr = formatDateToUTC(selectedDate);
+        
         fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date/${dateStr}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
@@ -78,11 +90,11 @@ export default function ShopkeeperDashboard() {
     if (loading) return <div className="p-6 text-lg">Loading dashboard...</div>;
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h2 className="text-3xl font-bold text-blue-700 mb-6">Delivery Dashboard</h2>
+        <div className="p-6 bg-gray-50 min-h-screen font-inter">
+            <h2 className="text-3xl font-bold text-blue-700 mb-6 rounded-md p-3 bg-white shadow-sm">🚚 Delivery Dashboard</h2>
 
             {error && (
-                <div className="mb-4 text-red-700 bg-red-100 border border-red-300 p-3 rounded">
+                <div className="mb-4 text-red-700 bg-red-100 border border-red-300 p-3 rounded-lg shadow-md">
                     ❌ {error}
                 </div>
             )}
@@ -99,7 +111,7 @@ export default function ShopkeeperDashboard() {
                     <Calendar
                         onChange={setSelectedDate}
                         value={selectedDate}
-                        className="rounded shadow-md"
+                        className="rounded-lg shadow-md border border-gray-200 p-2"
                     />
                     <div>
                         <h4 className="text-lg font-semibold mb-2 text-gray-700">
@@ -133,7 +145,7 @@ function DeliveryList({ title, bills, color }) {
     }[color];
 
     return (
-        <div className={`border-l-4 p-4 rounded shadow-sm ${bgColor}`}>
+        <div className={`border-l-4 p-4 rounded-lg shadow-sm transform transition-transform duration-300 hover:scale-105 ${bgColor}`}>
             <h3 className="font-bold text-lg mb-2">{title}</h3>
             {bills.length === 0 ? (
                 <p className="text-gray-500">No deliveries</p>
