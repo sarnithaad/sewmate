@@ -7,7 +7,7 @@ const options = [
 export default function StatusDropdown({ value, onChange }) {
     return (
         <select
-            className="border border-gray-300 rounded-lg px-4 py-2 text-base text-gray-700 bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg animate-fade-in-up font-inter"
+            className="border border-[#E0C0C6] rounded-lg px-4 py-2 text-base text-[#5A3F44] bg-[#F9E9EC] shadow-md focus:outline-none focus:ring-2 focus:ring-[#C2949D] transition-all duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg animate-fade-in-up font-inter" // Updated colors
             value={value}
             onChange={e => onChange(e.target.value)}
         >
