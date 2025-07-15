@@ -57,16 +57,16 @@ export default function ShopkeeperRegister() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex items-center justify-center px-4 font-inter">
+        <div className="min-h-screen bg-gradient-to-br from-[#FDF0F3] to-[#F2E5E8] flex items-center justify-center px-4 font-inter">
             <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl animate-fade-in-up">
                 <div className="flex flex-col items-center mb-6">
                     <img
-                        src="https://placehold.co/80x80/93c5fd/1e40af?text=Register"
+                        src="https://placehold.co/80x80/D1A6AD/ffffff?text=Reg" // Updated color
                         alt="Register Icon"
-                        className="h-20 w-20 rounded-full mb-4 shadow-lg border-4 border-blue-200"
+                        className="h-20 w-20 rounded-full mb-4 shadow-lg border-4 border-[#C2949D]" // Updated color
                         onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/80x80/cccccc/333333?text=Err'; }}
                     />
-                    <h2 className="text-3xl font-bold text-blue-700 text-center animate-fade-in">Create Your Shopkeeper Account</h2>
+                    <h2 className="text-3xl font-bold text-[#754F4F] text-center animate-fade-in">Create Your Shopkeeper Account</h2> {/* Updated color */}
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {[
@@ -78,7 +78,7 @@ export default function ShopkeeperRegister() {
                         { name: "address", label: "Shop Address", type: "text" }
                     ].map(({ name, label, type = "text", pattern, title }) => (
                         <div key={name}>
-                            <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                            <label htmlFor={name} className="block text-sm font-medium text-[#5A3F44] mb-2">{label}</label> {/* Updated color */}
                             <input
                                 type={type}
                                 name={name}
@@ -87,7 +87,7 @@ export default function ShopkeeperRegister() {
                                 onChange={handleChange}
                                 required={name !== "address"} // Address is optional
                                 autoComplete={name === "password" ? "new-password" : (name === "email" ? "email" : "off")}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-3 focus:ring-blue-400 transition-all duration-200 shadow-sm"
+                                className="w-full px-4 py-3 border border-[#E0C0C6] rounded-lg focus:outline-none focus:ring-3 focus:ring-[#C2949D] transition-all duration-200 shadow-sm text-[#5A3F44] bg-[#F9E9EC]" // Updated colors
                                 pattern={pattern}
                                 title={title}
                             />
@@ -111,8 +111,7 @@ export default function ShopkeeperRegister() {
                         className={`w-full px-4 py-3 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md
                             ${loading
                                 ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                                : "bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75"}`
-                        }
+                                : "bg-[#D1A6AD] text-white hover:bg-[#C2949D] focus:outline-none focus:ring-2 focus:ring-[#E0C0C6] focus:ring-opacity-75"}`} // Updated colors
                     >
                         {loading ? (
                             <span className="flex items-center justify-center">
@@ -128,9 +127,9 @@ export default function ShopkeeperRegister() {
                     </button>
                 </form>
 
-                <p className="mt-6 text-base text-center text-gray-600">
+                <p className="mt-6 text-base text-center text-[#754F4F]"> {/* Updated color */}
                     Already have an account?{" "}
-                    <Link to="/login" className="text-indigo-600 hover:underline font-semibold transition-colors duration-200">Login here</Link>
+                    <Link to="/login" className="text-[#C2949D] hover:underline font-semibold transition-colors duration-200">Login here</Link> {/* Updated color */}
                 </p>
             </div>
             {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
