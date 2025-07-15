@@ -292,7 +292,7 @@ export default function TodoList() {
                                             <button
                                                 onClick={() => handleToggleComplete(todo.id, todo.status)}
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
-                                                    ${todo.status === 'pending' ? 'bg-[#9C6672] hover:bg-[#8C5D66] text-white' : 'bg-[#D1A6AD] hover:bg-[#C2949D] text-white'}`} {/* Updated colors */}
+                                                    ${todo.status === 'pending' ? 'bg-[#9C6672] hover:bg-[#8C5D66] text-white' : 'bg-[#D1A6AD] hover:bg-[#C2949D] text-white'}`} 
                                             >
                                                 {todo.status === 'pending' ? 'Mark Complete' : 'Mark Pending'}
                                             </button>
