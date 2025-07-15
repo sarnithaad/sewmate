@@ -22,7 +22,6 @@ export default function ShopkeeperDashboard() {
 
     const todayStr = formatDateToUTC(new Date());
 
-    // 🔁 Fetch Delivery Summary
     useEffect(() => {
         if (!token) {
             setError("Unauthorized: No token found");
@@ -37,18 +36,9 @@ export default function ShopkeeperDashboard() {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
-                const raw = await res.json();
-                const data = raw.data || raw;
-
+                const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Failed to fetch deliveries");
-
-                console.log("🔍 Parsed Deliveries:", data); // Debug — remove later
-
-                setDeliveries({
-                    overdue: data.overdue || [],
-                    today: data.today || [],
-                    upcoming: data.upcoming || []
-                });
+                setDeliveries(data);
             })
             .catch(err => {
                 setError(err.message || "Error fetching delivery dashboard");
@@ -57,7 +47,6 @@ export default function ShopkeeperDashboard() {
             .finally(() => setLoading(false));
     }, [token, dashboardRefreshKey]);
 
-    // 🔁 Fetch Selected Date Bills
     useEffect(() => {
         if (!token || !selectedDate) {
             setSelectedDateBills([]);
@@ -71,11 +60,8 @@ export default function ShopkeeperDashboard() {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
-                const raw = await res.json();
-                const data = raw.data || raw;
-
+                const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Failed to fetch bills for date");
-
                 setSelectedDateBills(Array.isArray(data.bills) ? data.bills : []);
             })
             .catch(err => {
@@ -86,19 +72,13 @@ export default function ShopkeeperDashboard() {
     }, [selectedDate, token, dashboardRefreshKey]);
 
     return (
-        <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen font-inter">
-            <h2 className="text-4xl font-extrabold text-blue-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
-                <img
-                    src="https://placehold.co/50x50/60a5fa/ffffff?text=Dash"
-                    alt="Dashboard Icon"
-                    className="h-12 w-12 rounded-full mr-4 shadow-md"
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
-                />
+        <div className="p-6 bg-beige min-h-screen font-inter text-richbrown">
+            <h2 className="text-4xl font-extrabold mb-8 rounded-xl p-4 bg-brown text-white shadow-xl text-center animate-fade-in">
                 🚚 Delivery Dashboard
             </h2>
 
             {loading ? (
-                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
+                <p className="text-black text-xl p-6 bg-lighttan rounded-lg shadow-lg text-center animate-pulse">
                     Loading dashboard...
                 </p>
             ) : (
@@ -115,18 +95,10 @@ export default function ShopkeeperDashboard() {
                         <DeliveryList title="📅 Upcoming (Next 2 Days)" bills={deliveries.upcoming} color="blue" />
                     </div>
 
-                    <div className="bg-white p-8 rounded-xl shadow-xl mt-8 animate-fade-in-up">
-                        <h3 className="text-2xl font-bold text-indigo-700 mb-6 flex items-center justify-center">
-                            <img
-                                src="https://placehold.co/40x40/818cf8/ffffff?text=Date"
-                                alt="Calendar Icon"
-                                className="h-10 w-10 rounded-full mr-3 shadow-sm"
-                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/40x40/cccccc/333333?text=Err'; }}
-                            />
-                            📌 View Deliveries by Date
-                        </h3>
+                    <div className="bg-lighttan p-8 rounded-xl shadow-xl mt-8 animate-fade-in-up">
+                        <h3 className="text-2xl font-bold mb-6 text-center">📌 View Deliveries by Date</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div className="flex justify-center items-start">
+                            <div className="flex justify-center">
                                 <Calendar
                                     onChange={setSelectedDate}
                                     value={selectedDate}
@@ -137,26 +109,20 @@ export default function ShopkeeperDashboard() {
                                 />
                             </div>
                             <div>
-                                <h4 className="text-xl font-semibold mb-4 text-gray-800 text-center">
+                                <h4 className="text-xl font-semibold mb-4 text-center">
                                     Deliveries on {selectedDate.toDateString()}:
                                 </h4>
                                 {selectedDateBills.length === 0 ? (
                                     <div className="text-center py-6 text-gray-500 italic">
                                         <p>No deliveries for this date.</p>
-                                        <img
-                                            src="https://placehold.co/100x100/f0f9ff/3b82f6?text=Empty"
-                                            alt="No Deliveries Icon"
-                                            className="mx-auto mt-4 rounded-full shadow-sm"
-                                            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
-                                        />
                                     </div>
                                 ) : (
                                     <ul className="divide-y divide-gray-200 bg-white rounded-lg shadow-md p-4">
                                         {selectedDateBills.map(bill => (
                                             <li key={bill.id} className="py-3 flex justify-between items-center animate-fade-in-item">
                                                 <div>
-                                                    <div className="font-bold text-gray-900">{bill.customer_name}</div>
-                                                    <div className="text-sm text-gray-600">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
+                                                    <div className="font-bold">{bill.customer_name}</div>
+                                                    <div className="text-sm text-gray-700">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="text-sm text-gray-700">Due: <span className="font-medium">{bill.due_date}</span></div>
@@ -172,7 +138,6 @@ export default function ShopkeeperDashboard() {
                 </>
             )}
 
-            {/* Animation styles */}
             <style>
                 {`
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
@@ -192,38 +157,26 @@ export default function ShopkeeperDashboard() {
     );
 }
 
-// ✅ DeliveryList Component
 function DeliveryList({ title, bills, color }) {
     const colors = {
-        red: { bg: "bg-red-50", border: "border-red-500", text: "text-red-700", placeholder: "fca5a5", icon: "🚨" },
-        green: { bg: "bg-green-50", border: "border-green-500", text: "text-green-700", placeholder: "dcfce7", icon: "📦" },
-        blue: { bg: "bg-blue-50", border: "border-blue-500", text: "text-blue-700", placeholder: "e0f2f7", icon: "📅" }
+        red: { bg: "bg-red-100", text: "text-red-800", border: "border-red-500" },
+        green: { bg: "bg-green-100", text: "text-green-800", border: "border-green-500" },
+        blue: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-500" }
     }[color];
 
     return (
-        <div className={`border-l-4 p-6 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 
-            ${colors.bg} ${colors.border} ${colors.text} animate-fade-in-up`}>
-            <h3 className="font-bold text-xl mb-4 flex items-center">
-                <span className="mr-2 text-2xl">{colors.icon}</span> {title}
-            </h3>
+        <div className={`border-l-4 p-6 rounded-xl shadow-lg ${colors.bg} ${colors.text} ${colors.border} animate-fade-in-up`}>
+            <h3 className="font-bold text-xl mb-4">{title}</h3>
             {bills.length === 0 ? (
-                <div className="text-gray-500 italic text-center py-4">
-                    <p>No deliveries</p>
-                    <img
-                        src={`https://placehold.co/100x100/${colors.placeholder}/${colors.border.replace("border-", "")}?text=Empty`}
-                        alt="No Deliveries Icon"
-                        className="mx-auto mt-4 rounded-full shadow-sm"
-                        onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
-                    />
-                </div>
+                <div className="text-gray-500 italic text-center">No deliveries</div>
             ) : (
                 <ul className="space-y-3">
                     {bills.map(bill => (
                         <li key={bill.id} className="border-b border-gray-200 pb-3 text-base animate-fade-in-item">
-                            <div className="font-semibold text-gray-900">{bill.customer_name}</div>
+                            <div className="font-semibold text-black">{bill.customer_name}</div>
                             <div className="text-sm text-gray-700">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
                             <div className="text-sm text-gray-700">Due: <span className="font-medium">{bill.due_date}</span></div>
-                            <div className="text-md font-semibold text-green-600">Value: ₹{bill.total_value}</div>
+                            <div className="text-md font-semibold text-green-700">Value: ₹{bill.total_value}</div>
                         </li>
                     ))}
                 </ul>
