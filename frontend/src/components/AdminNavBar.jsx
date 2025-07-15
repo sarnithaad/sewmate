@@ -27,20 +27,20 @@ export default function AdminNavBar() {
   const { logout } = useAuth();
 
   return (
-    <nav className="w-full bg-gradient-to-r from-blue-700 via-indigo-800 to-purple-800 shadow-xl px-4 py-4 md:px-10 rounded-b-xl animate-slide-down-nav font-sans z-50">
+    <nav className="w-full bg-gradient-to-r from-[#5C4033] via-[#7B4F35] to-[#A67B5B] shadow-xl px-4 py-4 md:px-10 rounded-b-xl animate-slide-down-nav font-sans z-50">
       <div className="flex flex-wrap gap-3 justify-center md:justify-start items-center relative">
         {/* Logo */}
         <div className="flex items-center gap-3 mr-6">
           <img
-            src="https://placehold.co/48x48/ffffff/000000?text=SM"
+            src="https://placehold.co/48x48/5C4033/ffffff?text=SM"
             alt="SewMate"
-            className="h-12 w-12 rounded-full border-2 border-white shadow-md hover:rotate-6 transform transition duration-500"
+            className="h-12 w-12 rounded-full border-2 border-[#FDF6EC] shadow-md hover:rotate-6 transform transition duration-500"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "https://placehold.co/48x48/cccccc/333333?text=SM";
             }}
           />
-          <h1 className="text-white text-xl font-bold tracking-wide drop-shadow-md hidden sm:block">
+          <h1 className="text-[#FDF6EC] text-xl font-bold tracking-wide drop-shadow-md hidden sm:block">
             SewMate
           </h1>
         </div>
@@ -52,9 +52,11 @@ export default function AdminNavBar() {
             to={nav.path}
             className={({ isActive }) =>
               `flex items-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ease-in-out transform hover:scale-105 
-              ${isActive
-                ? "bg-white text-indigo-700 shadow-lg ring-2 ring-white"
-                : "text-white hover:bg-indigo-600 hover:text-white"}`
+              ${
+                isActive
+                  ? "bg-[#EED8B4] text-black shadow-lg ring-2 ring-[#FDF6EC]"
+                  : "text-[#FDF6EC] hover:bg-[#7B4F35] hover:text-white"
+              }`
             }
           >
             {nav.icon}
@@ -65,7 +67,7 @@ export default function AdminNavBar() {
         {/* Logout */}
         <button
           onClick={logout}
-          className="ml-auto flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full bg-red-600 text-white shadow-md hover:bg-red-700 hover:scale-105 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400"
+          className="ml-auto flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-full bg-[#8B3A3A] text-white shadow-md hover:bg-[#6C2C2C] hover:scale-105 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#FDF6EC]"
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5" />
           Logout
@@ -88,7 +90,7 @@ export default function AdminNavBar() {
         .animate-slide-down-nav {
           animation: slideDownNav 0.5s ease-out forwards;
         }
-      `}
+        `}
       </style>
     </nav>
   );
