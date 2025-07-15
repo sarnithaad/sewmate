@@ -41,16 +41,16 @@ export default function ShopkeeperLogin() {
     };
 
     return (
-        <div className="min-h-screen bg-[#EED8B4] flex items-center justify-center px-4 font-inter">
-            <div className="w-full max-w-md bg-[#D2B48C] p-8 rounded-xl shadow-2xl animate-fade-in-up">
+        <div className="min-h-screen bg-[#FDF0F3] flex items-center justify-center px-4 font-inter">
+            <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl animate-fade-in-up">
                 <div className="flex flex-col items-center mb-6">
                     <img
-                        src="https://placehold.co/80x80/8b5e3c/ffffff?text=Login"
+                        src="https://placehold.co/80x80/D1A6AD/ffffff?text=Login" // Updated color
                         alt="Login Icon"
-                        className="h-20 w-20 rounded-full mb-4 shadow-lg border-4 border-[#A67B5B]"
+                        className="h-20 w-20 rounded-full mb-4 shadow-lg border-4 border-[#C2949D]" // Updated color
                         onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/80x80/cccccc/333333?text=Err'; }}
                     />
-                    <h2 className="text-3xl font-bold text-[#5C4033] text-center animate-fade-in">
+                    <h2 className="text-3xl font-bold text-[#754F4F] text-center animate-fade-in"> {/* Updated color */}
                         Shopkeeper Login
                     </h2>
                 </div>
@@ -60,7 +60,7 @@ export default function ShopkeeperLogin() {
                         { name: "password", label: "Password", type: "password" }
                     ].map(({ name, label, type }) => (
                         <div key={name}>
-                            <label htmlFor={name} className="block text-sm font-medium text-[#3B2A1A] mb-2">
+                            <label htmlFor={name} className="block text-sm font-medium text-[#5A3F44] mb-2"> {/* Updated color */}
                                 {label}
                             </label>
                             <input
@@ -71,7 +71,7 @@ export default function ShopkeeperLogin() {
                                 onChange={handleChange}
                                 required
                                 autoComplete={name === "password" ? "current-password" : "username"}
-                                className="w-full px-4 py-3 border border-[#A67B5B] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C4033] shadow-sm text-[#3B2A1A] bg-white"
+                                className="w-full px-4 py-3 border border-[#E0C0C6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C2949D] shadow-sm text-[#5A3F44] bg-[#F9E9EC]" // Updated colors
                             />
                         </div>
                     ))}
@@ -88,7 +88,7 @@ export default function ShopkeeperLogin() {
                         className={`w-full px-4 py-3 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md
                             ${loading
                                 ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                                : "bg-[#5C4033] text-white hover:bg-[#3B2A1A] focus:outline-none focus:ring-2 focus:ring-[#A67B5B] focus:ring-opacity-75"}`}
+                                : "bg-[#D1A6AD] text-white hover:bg-[#C2949D] focus:outline-none focus:ring-2 focus:ring-[#E0C0C6] focus:ring-opacity-75"}`} {/* Updated colors */}
                     >
                         {loading ? (
                             <span className="flex items-center justify-center">
@@ -104,9 +104,9 @@ export default function ShopkeeperLogin() {
                     </button>
                 </form>
 
-                <p className="mt-6 text-base text-center text-black">
+                <p className="mt-6 text-base text-center text-[#754F4F]"> {/* Updated color */}
                     New shopkeeper?{" "}
-                    <Link to="/" className="text-[#3B2A1A] hover:underline font-semibold transition-colors duration-200">
+                    <Link to="/" className="text-[#C2949D] hover:underline font-semibold transition-colors duration-200"> {/* Updated color */}
                         Register here
                     </Link>
                 </p>
