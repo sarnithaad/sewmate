@@ -138,7 +138,7 @@ export default function TodoList() {
             modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 animate-fade-in';
             modal.innerHTML = `
                 <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center animate-zoom-in">
-                    <p class="text-lg font-semibold mb-4">Are you sure you want to delete this task?</p>
+                    <p class="text-lg font-semibold mb-4 text-[#754F4F]">Are you sure you want to delete this task?</p> {/* Updated color */}
                     <div class="flex justify-center gap-4">
                         <button id="confirm-yes" class="px-5 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all duration-200">Yes, Delete</button>
                         <button id="confirm-no" class="px-5 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition-all duration-200">Cancel</button>
@@ -189,10 +189,10 @@ export default function TodoList() {
     };
 
     return (
-        <div className="p-6 bg-gradient-to-br from-indigo-50 to-blue-50 min-h-screen font-inter">
-            <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+        <div className="p-6 bg-gradient-to-br from-[#FDF0F3] to-[#F2E5E8] min-h-screen font-inter"> {/* Updated colors */}
+            <h2 className="text-4xl font-extrabold text-[#754F4F] mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center"> {/* Updated colors */}
                 <img
-                    src="https://placehold.co/50x50/818cf8/ffffff?text=Todo"
+                    src="https://placehold.co/50x50/D1A6AD/ffffff?text=Todo" // Updated color
                     alt="To-Do List Icon"
                     className="h-12 w-12 rounded-full mr-4 shadow-md"
                     onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
@@ -208,7 +208,7 @@ export default function TodoList() {
 
             {/* Add New Todo Form */}
             <div className="bg-white shadow-xl rounded-xl p-6 mb-8 animate-fade-in-up">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <h3 className="text-xl font-semibold text-[#5A3F44] mb-4 flex items-center"> {/* Updated color */}
                     <span className="mr-2 text-2xl">📝</span> Add New Task
                 </h3>
                 <form onSubmit={handleAddTodo} className="flex flex-col sm:flex-row gap-4">
@@ -217,14 +217,14 @@ export default function TodoList() {
                         placeholder="Task description"
                         value={newTask}
                         onChange={(e) => setNewTask(e.target.value)}
-                        className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-200 shadow-sm"
+                        className="flex-grow p-3 border border-[#E0C0C6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C2949D] transition-all duration-200 shadow-sm text-[#5A3F44] bg-[#F9E9EC]" // Updated colors
                         required
                     />
                     <input
                         type="date"
                         value={newDueDate}
                         onChange={(e) => setNewDueDate(e.target.value)}
-                        className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-200 shadow-sm"
+                        className="p-3 border border-[#E0C0C6] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C2949D] transition-all duration-200 shadow-sm text-[#5A3F44] bg-[#F9E9EC]" // Updated colors
                         required
                     />
                     <button
@@ -233,7 +233,7 @@ export default function TodoList() {
                         className={`px-6 py-3 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md
                             ${addingTask
                                 ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                                : "bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-opacity-75"}`
+                                : "bg-[#D1A6AD] text-white hover:bg-[#C2949D] focus:outline-none focus:ring-2 focus:ring-[#E0C0C6] focus:ring-opacity-75"}` // Updated colors
                         }
                     >
                         {addingTask ? (
@@ -253,14 +253,14 @@ export default function TodoList() {
             </div>
 
             {loading ? (
-                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading tasks...</p>
+                <p className="text-[#754F4F] text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading tasks...</p> // Updated color
             ) : (
                 <div className="overflow-x-auto bg-white shadow-xl rounded-xl animate-fade-in-up">
                     {todos.length === 0 && !error ? (
-                        <div className="text-center py-10 text-gray-500 text-lg">
+                        <div className="text-center py-10 text-[#754F4F] text-lg"> {/* Updated color */}
                             <p>🎉 No tasks in your to-do list! Time to relax.</p>
                             <img
-                                src="https://placehold.co/150x150/e0ffe0/006400?text=Done"
+                                src="https://placehold.co/150x150/D1A6AD/ffffff?text=Done" // Updated color
                                 alt="No Tasks Icon"
                                 className="mx-auto mt-6 rounded-full shadow-md"
                                 onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Error'; }}
@@ -268,19 +268,19 @@ export default function TodoList() {
                         </div>
                     ) : (
                         <table className="min-w-full text-base text-left border-collapse">
-                            <thead className="bg-gradient-to-r from-indigo-100 to-blue-100 text-gray-800 uppercase tracking-wider">
+                            <thead className="bg-gradient-to-r from-[#F9E9EC] to-[#F2E5E8] text-[#5A3F44] uppercase tracking-wider"> {/* Updated colors */}
                                 <tr>
-                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Task</th>
-                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Due Date</th>
-                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Status</th>
-                                    <th className="px-4 py-3 border-b-2 border-indigo-200 text-center">Actions</th>
+                                    <th className="px-4 py-3 border-b-2 border-[#E0C0C6]">Task</th> {/* Updated color */}
+                                    <th className="px-4 py-3 border-b-2 border-[#E0C0C6]">Due Date</th> {/* Updated color */}
+                                    <th className="px-4 py-3 border-b-2 border-[#E0C0C6]">Status</th> {/* Updated color */}
+                                    <th className="px-4 py-3 border-b-2 border-[#E0C0C6] text-center">Actions</th> {/* Updated color */}
                                 </tr>
                             </thead>
                             <tbody>
                                 {todos.map((todo) => (
-                                    <tr key={todo.id} className="border-t border-gray-200 hover:bg-blue-50 transition-colors duration-200 ease-in-out">
-                                        <td className="px-4 py-3 font-medium text-gray-900">{todo.task}</td>
-                                        <td className="px-4 py-3 text-gray-700">{todo.due_date}</td>
+                                    <tr key={todo.id} className="border-t border-[#E0C0C6] hover:bg-[#FDF0F3] transition-colors duration-200 ease-in-out"> {/* Updated colors */}
+                                        <td className="px-4 py-3 font-medium text-[#5A3F44]">{todo.task}</td> {/* Updated color */}
+                                        <td className="px-4 py-3 text-[#754F4F]">{todo.due_date}</td> {/* Updated color */}
                                         <td className="px-4 py-3">
                                             <span className={`px-3 py-1 rounded-full text-xs font-semibold
                                                 ${todo.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -292,7 +292,7 @@ export default function TodoList() {
                                             <button
                                                 onClick={() => handleToggleComplete(todo.id, todo.status)}
                                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
-                                                    ${todo.status === 'pending' ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-yellow-500 hover:bg-yellow-600 text-white'}`}
+                                                    ${todo.status === 'pending' ? 'bg-[#9C6672] hover:bg-[#8C5D66] text-white' : 'bg-[#D1A6AD] hover:bg-[#C2949D] text-white'}`} {/* Updated colors */}
                                             >
                                                 {todo.status === 'pending' ? 'Mark Complete' : 'Mark Pending'}
                                             </button>
