@@ -92,54 +92,99 @@ export default function BillStatus({ onStatusUpdated }) { // Accept onStatusUpda
     };
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h2 className="text-2xl font-bold text-indigo-700 mb-4">📋 Bill Status</h2>
+        <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+                <img
+                    src="https://placehold.co/50x50/818cf8/ffffff?text=Status"
+                    alt="Bill Status Icon"
+                    className="h-12 w-12 rounded-full mr-4 shadow-md"
+                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
+                />
+                📋 Bill Status
+            </h2>
 
             {error && (
-                <div className="mb-4 text-red-600 bg-red-100 border border-red-300 p-2 rounded">
-                    {error}
+                <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6 shadow-md animate-slide-down">
+                    ❌ {error}
                 </div>
             )}
 
             {loading ? (
-                <p className="text-gray-600">Loading bills...</p>
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading bills...</p>
             ) : (
-                <div className="overflow-x-auto bg-white rounded shadow-md">
-                    <table className="min-w-full text-sm text-left border-collapse">
-                        <thead className="bg-indigo-100 text-gray-700">
-                            <tr>
-                                <th className="px-4 py-2 border">Customer</th>
-                                <th className="px-4 py-2 border">Bill No</th>
-                                <th className="px-4 py-2 border">Status</th>
-                                <th className="px-4 py-2 border">Status Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {bills.length === 0 ? (
+                <div className="overflow-x-auto bg-white rounded-xl shadow-xl animate-fade-in-up">
+                    {bills.length === 0 ? (
+                        <div className="text-center py-10 text-gray-500 text-lg">
+                            <p>🎉 No active bills to display. All caught up!</p>
+                            <img
+                                src="https://placehold.co/150x150/e0ffe0/006400?text=Done"
+                                alt="No Bills Icon"
+                                className="mx-auto mt-6 rounded-full shadow-md"
+                                onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150/cccccc/333333?text=Error'; }}
+                            />
+                        </div>
+                    ) : (
+                        <table className="min-w-full text-sm text-left border-collapse">
+                            <thead className="bg-gradient-to-r from-indigo-100 to-blue-100 text-gray-700 uppercase tracking-wider">
                                 <tr>
-                                    <td colSpan="4" className="text-center py-4 text-gray-500">
-                                        No active bills
-                                    </td>
+                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Customer</th>
+                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Bill No</th>
+                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Status</th>
+                                    <th className="px-4 py-3 border-b-2 border-indigo-200">Status Date</th>
                                 </tr>
-                            ) : (
-                                bills.map(bill => (
-                                    <tr key={bill.id} className="border-t hover:bg-gray-50"> {/* Use bill.id as key */}
-                                        <td className="px-4 py-2 border">{bill.customer_name}</td>
-                                        <td className="px-4 py-2 border">{bill.bill_number}</td> {/* Display bill number */}
-                                        <td className="px-4 py-2 border">
+                            </thead>
+                            <tbody>
+                                {bills.map(bill => (
+                                    <tr key={bill.id} className="border-t border-gray-200 hover:bg-blue-50 transition-colors duration-200 ease-in-out">
+                                        <td className="px-4 py-3">{bill.customer_name}</td>
+                                        <td className="px-4 py-3 font-semibold text-blue-700">{bill.bill_number}</td> {/* Display bill number */}
+                                        <td className="px-4 py-3">
                                             <StatusDropdown
                                                 value={bill.status}
                                                 onChange={status => handleStatusChange(bill.id, status)}
                                             />
                                         </td>
-                                        <td className="px-4 py-2 border">{bill.status_date || "-"}</td>
+                                        <td className="px-4 py-3 text-gray-600">{bill.status_date || "-"}</td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             )}
+            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+            <style>
+                {`
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes slideDown {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.7; }
+                }
+                @keyframes fadeInUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.8s ease-out forwards;
+                }
+                .animate-slide-down {
+                    animation: slideDown 0.5s ease-out forwards;
+                }
+                .animate-pulse {
+                    animation: pulse 1.5s infinite ease-in-out;
+                }
+                .animate-fade-in-up {
+                    animation: fadeInUp 0.7s ease-out forwards;
+                }
+                `}
+            </style>
         </div>
     );
 }
