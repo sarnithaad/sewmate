@@ -72,19 +72,19 @@ export default function ShopkeeperDashboard() {
     }, [selectedDate, token, dashboardRefreshKey]);
 
     return (
-        <div className="p-6 bg-beige min-h-screen font-inter text-richbrown">
-            <h2 className="text-4xl font-extrabold mb-8 rounded-xl p-4 bg-brown text-white shadow-xl text-center animate-fade-in">
+        <div className="p-6 bg-[#FDF0F3] min-h-screen font-inter text-[#754F4F]">
+            <h2 className="text-4xl font-extrabold mb-8 rounded-xl p-4 bg-white text-[#754F4F] shadow-xl text-center animate-fade-in">
                 🚚 Delivery Dashboard
             </h2>
 
             {loading ? (
-                <p className="text-black text-xl p-6 bg-lighttan rounded-lg shadow-lg text-center animate-pulse">
+                <p className="text-[#754F4F] text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
                     Loading dashboard...
                 </p>
             ) : (
                 <>
                     {error && (
-                        <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg mb-6 shadow-md animate-slide-down">
+                        <div className="bg-[#FEE2E2] border border-[#FCA5A5] text-[#B91C1C] p-4 rounded-lg mb-6 shadow-md animate-slide-down">
                             ❌ {error}
                         </div>
                     )}
@@ -95,7 +95,7 @@ export default function ShopkeeperDashboard() {
                         <DeliveryList title="📅 Upcoming (Next 2 Days)" bills={deliveries.upcoming} color="blue" />
                     </div>
 
-                    <div className="bg-lighttan p-8 rounded-xl shadow-xl mt-8 animate-fade-in-up">
+                    <div className="bg-white p-8 rounded-xl shadow-xl mt-8 animate-fade-in-up">
                         <h3 className="text-2xl font-bold mb-6 text-center">📌 View Deliveries by Date</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="flex justify-center">
@@ -103,9 +103,9 @@ export default function ShopkeeperDashboard() {
                                     onChange={setSelectedDate}
                                     value={selectedDate}
                                     tileClassName={({ date }) =>
-                                        formatDateToUTC(date) === todayStr ? "bg-yellow-100 font-bold text-yellow-800 rounded-md" : ""
+                                        formatDateToUTC(date) === todayStr ? "bg-[#FBE9EC] font-bold text-[#AD8B8B] rounded-md" : ""
                                     }
-                                    className="rounded-xl shadow-lg border border-gray-300 p-3 w-full max-w-xs"
+                                    className="rounded-xl shadow-lg border border-[#E0C0C6] p-3 w-full max-w-xs"
                                 />
                             </div>
                             <div>
@@ -113,20 +113,20 @@ export default function ShopkeeperDashboard() {
                                     Deliveries on {selectedDate.toDateString()}:
                                 </h4>
                                 {selectedDateBills.length === 0 ? (
-                                    <div className="text-center py-6 text-gray-500 italic">
+                                    <div className="text-center py-6 text-[#AD8B8B] italic">
                                         <p>No deliveries for this date.</p>
                                     </div>
                                 ) : (
-                                    <ul className="divide-y divide-gray-200 bg-white rounded-lg shadow-md p-4">
+                                    <ul className="divide-y divide-[#F2E5E8] bg-[#F9E9EC] rounded-lg shadow-md p-4">
                                         {selectedDateBills.map(bill => (
                                             <li key={bill.id} className="py-3 flex justify-between items-center animate-fade-in-item">
                                                 <div>
-                                                    <div className="font-bold">{bill.customer_name}</div>
-                                                    <div className="text-sm text-gray-700">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
+                                                    <div className="font-bold text-[#5A3F44]">{bill.customer_name}</div>
+                                                    <div className="text-sm text-[#754F4F]">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-sm text-gray-700">Due: <span className="font-medium">{bill.due_date}</span></div>
-                                                    <div className="text-md font-semibold text-green-600">₹{bill.total_value}</div>
+                                                    <div className="text-sm text-[#754F4F]">Due: <span className="font-medium">{bill.due_date}</span></div>
+                                                    <div className="text-md font-semibold text-[#D1A6AD]">₹{bill.total_value}</div>
                                                 </div>
                                             </li>
                                         ))}
@@ -159,24 +159,24 @@ export default function ShopkeeperDashboard() {
 
 function DeliveryList({ title, bills, color }) {
     const colors = {
-        red: { bg: "bg-red-100", text: "text-red-800", border: "border-red-500" },
-        green: { bg: "bg-green-100", text: "text-green-800", border: "border-green-500" },
-        blue: { bg: "bg-blue-100", text: "text-blue-800", border: "border-blue-500" }
+        red: { bg: "bg-[#FEE2E2]", text: "text-[#B91C1C]", border: "border-[#FCA5A5]" }, // Retained for errors/overdue
+        green: { bg: "bg-[#F2E5E8]", text: "text-[#754F4F]", border: "border-[#D1A6AD]" }, // Adjusted for today's deliveries
+        blue: { bg: "bg-[#F9E9EC]", text: "text-[#AD8B8B]", border: "border-[#C2949D]" } // Adjusted for upcoming deliveries
     }[color];
 
     return (
         <div className={`border-l-4 p-6 rounded-xl shadow-lg ${colors.bg} ${colors.text} ${colors.border} animate-fade-in-up`}>
             <h3 className="font-bold text-xl mb-4">{title}</h3>
             {bills.length === 0 ? (
-                <div className="text-gray-500 italic text-center">No deliveries</div>
+                <div className="text-[#AD8B8B] italic text-center">No deliveries</div>
             ) : (
                 <ul className="space-y-3">
                     {bills.map(bill => (
-                        <li key={bill.id} className="border-b border-gray-200 pb-3 text-base animate-fade-in-item">
-                            <div className="font-semibold text-black">{bill.customer_name}</div>
-                            <div className="text-sm text-gray-700">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
-                            <div className="text-sm text-gray-700">Due: <span className="font-medium">{bill.due_date}</span></div>
-                            <div className="text-md font-semibold text-green-700">Value: ₹{bill.total_value}</div>
+                        <li key={bill.id} className="border-b border-[#EBE0E2] pb-3 text-base animate-fade-in-item">
+                            <div className="font-semibold text-[#5A3F44]">{bill.customer_name}</div>
+                            <div className="text-sm text-[#754F4F]">Bill No: <span className="font-medium">{bill.bill_number}</span></div>
+                            <div className="text-sm text-[#754F4F]">Due: <span className="font-medium">{bill.due_date}</span></div>
+                            <div className="text-md font-semibold text-[#D1A6AD]">Value: ₹{bill.total_value}</div>
                         </li>
                     ))}
                 </ul>
