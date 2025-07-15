@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
-import { useAuth } from "../context/AuthContext"; // Import useAuth hook
+import { useAuth } from "../context/AuthContext";
 
 export default function ShopkeeperDashboard() {
     const [deliveries, setDeliveries] = useState({ overdue: [], today: [], upcoming: [] });
@@ -10,19 +10,18 @@ export default function ShopkeeperDashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const { token, dashboardRefreshKey } = useAuth(); // Get token and refreshKey from AuthContext
+    const { token, dashboardRefreshKey } = useAuth();
 
-    // Helper function to format date consistently to YYYY-MM-DD UTC
-    const formatDateToUTC = date => {
+    const formatDateToUTC = (date) => {
         const d = new Date(date);
-        // Get UTC components to ensure consistency regardless of local timezone
         const year = d.getUTCFullYear();
-        const month = (d.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+        const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
         const day = d.getUTCDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
 
-    // Fetch dashboard deliveries
+    const todayStr = formatDateToUTC(new Date());
+
     useEffect(() => {
         if (!token) {
             setError("Unauthorized: No token found");
@@ -30,19 +29,14 @@ export default function ShopkeeperDashboard() {
             return;
         }
 
-        setLoading(true); // Set loading true on every fetch attempt
-        setError(""); // Clear previous errors
+        setLoading(true);
+        setError("");
 
         fetch(`${process.env.REACT_APP_API_URL}/api/bills/dashboard-deliveries`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
-                let data;
-                try {
-                    data = await res.json();
-                } catch {
-                    throw new Error("Invalid response from server");
-                }
+                const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Failed to fetch deliveries");
                 setDeliveries(data);
             })
@@ -50,42 +44,32 @@ export default function ShopkeeperDashboard() {
                 setError(err.message || "Error fetching delivery dashboard");
                 setDeliveries({ overdue: [], today: [], upcoming: [] });
             })
-            .finally(() => {
-                setLoading(false); // Set loading false after fetch completes (success or error)
-            });
-    }, [token, dashboardRefreshKey]); // Add dashboardRefreshKey to dependencies
+            .finally(() => setLoading(false));
+    }, [token, dashboardRefreshKey]);
 
-    // Fetch bills for selected date
     useEffect(() => {
-        if (!token || !selectedDate) { // Ensure selectedDate is not null
+        if (!token || !selectedDate) {
             setSelectedDateBills([]);
             return;
         }
 
-        setError(""); // Clear previous errors for date-specific fetch
-        // Use the new formatDateToUTC function
+        setError("");
         const dateStr = formatDateToUTC(selectedDate);
-        
+
         fetch(`${process.env.REACT_APP_API_URL}/api/bills/by-date/${dateStr}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
-                let data;
-                try {
-                    data = await res.json();
-                } catch {
-                    throw new Error("Invalid response fetching date-specific bills");
-                }
+                const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Failed to fetch bills for date");
-                // Backend returns { bills: [...] }, so access data.bills
                 setSelectedDateBills(Array.isArray(data.bills) ? data.bills : []);
             })
             .catch(err => {
-                console.error("Error fetching date-specific bills:", err); // Log the error
+                console.error("Error fetching date-specific bills:", err);
                 setSelectedDateBills([]);
-                setError(prev => prev + (prev ? " | " : "") + "Error fetching bills for date."); // Append error
+                setError(prev => prev + (prev ? " | " : "") + "Error fetching bills for date.");
             });
-    }, [selectedDate, token, dashboardRefreshKey]); // Add dashboardRefreshKey to dependencies
+    }, [selectedDate, token, dashboardRefreshKey]);
 
     return (
         <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen font-inter">
@@ -100,7 +84,9 @@ export default function ShopkeeperDashboard() {
             </h2>
 
             {loading ? (
-                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading dashboard...</p>
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
+                    Loading dashboard...
+                </p>
             ) : (
                 <>
                     {error && (
@@ -130,6 +116,9 @@ export default function ShopkeeperDashboard() {
                                 <Calendar
                                     onChange={setSelectedDate}
                                     value={selectedDate}
+                                    tileClassName={({ date }) =>
+                                        formatDateToUTC(date) === todayStr ? "bg-yellow-100 font-bold text-yellow-800 rounded-md" : ""
+                                    }
                                     className="rounded-xl shadow-lg border border-gray-300 p-3 w-full max-w-xs"
                                 />
                             </div>
@@ -168,44 +157,20 @@ export default function ShopkeeperDashboard() {
                     </div>
                 </>
             )}
-            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+
             <style>
                 {`
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(-20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes slideDown {
-                    from { opacity: 0; transform: translateY(-10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes pulse {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.7; }
-                }
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-                @keyframes fadeInItem {
-                    from { opacity: 0; transform: translateX(-10px); }
-                    to { opacity: 1; transform: translateX(0); }
-                }
-                .animate-fade-in-up {
-                    animation: fadeInUp 0.7s ease-out forwards;
-                }
-                .animate-fade-in {
-                    animation: fadeIn 0.8s ease-out forwards;
-                }
-                .animate-slide-down {
-                    animation: slideDown 0.5s ease-out forwards;
-                }
-                .animate-pulse {
-                    animation: pulse 1.5s infinite ease-in-out;
-                }
-                .animate-fade-in-item {
-                    animation: fadeInItem 0.5s ease-out forwards;
-                }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+                @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes fadeInItem { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+                .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; }
+                .animate-slide-down { animation: slideDown 0.5s ease-out forwards; }
+                .animate-pulse { animation: pulse 1.5s infinite ease-in-out; }
+                .animate-fade-in-up { animation: fadeInUp 0.7s ease-out forwards; }
+                .animate-fade-in-item { animation: fadeInItem 0.5s ease-out forwards; }
                 `}
             </style>
         </div>
@@ -213,28 +178,23 @@ export default function ShopkeeperDashboard() {
 }
 
 function DeliveryList({ title, bills, color }) {
-    const bgColor = {
-        red: "bg-red-50 border-red-500 text-red-700",
-        green: "bg-green-50 border-green-500 text-green-700",
-        blue: "bg-blue-50 border-blue-500 text-blue-700"
-    }[color];
-
-    const icon = {
-        red: "🚨",
-        green: "📦",
-        blue: "📅"
+    const colors = {
+        red: { bg: "bg-red-50", border: "border-red-500", text: "text-red-700", placeholder: "fca5a5", icon: "🚨" },
+        green: { bg: "bg-green-50", border: "border-green-500", text: "text-green-700", placeholder: "dcfce7", icon: "📦" },
+        blue: { bg: "bg-blue-50", border: "border-blue-500", text: "text-blue-700", placeholder: "e0f2f7", icon: "📅" }
     }[color];
 
     return (
-        <div className={`border-l-4 p-6 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 ${bgColor} animate-fade-in-up`}>
+        <div className={`border-l-4 p-6 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 
+            ${colors.bg} ${colors.border} ${colors.text} animate-fade-in-up`}>
             <h3 className="font-bold text-xl mb-4 flex items-center">
-                <span className="mr-2 text-2xl">{icon}</span> {title}
+                <span className="mr-2 text-2xl">{colors.icon}</span> {title}
             </h3>
             {bills.length === 0 ? (
                 <div className="text-gray-500 italic text-center py-4">
                     <p>No deliveries</p>
                     <img
-                        src={`https://placehold.co/100x100/${color === 'red' ? 'fca5a5' : color === 'green' ? 'dcfce7' : 'e0f2f7'}/${color === 'red' ? 'dc2626' : color === 'green' ? '16a34a' : '2563eb'}?text=Empty`}
+                        src={`https://placehold.co/100x100/${colors.placeholder}/${colors.border.replace("border-", "")}?text=Empty`}
                         alt="No Deliveries Icon"
                         className="mx-auto mt-4 rounded-full shadow-sm"
                         onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
