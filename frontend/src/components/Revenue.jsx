@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
-import { useAuth } from "../context/AuthContext"; // Import useAuth hook
+import { useAuth } from "../context/AuthContext";
 
 export default function Revenue() {
-    const [bills, setBills] = useState([]); // State for all bills (for daily calculations)
-    const [totalOverallRevenue, setTotalOverallRevenue] = useState(0); // New state for overall delivered revenue
+    const [bills, setBills] = useState([]);
+    const [totalOverallRevenue, setTotalOverallRevenue] = useState(0);
     const [error, setError] = useState("");
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [loadingBills, setLoadingBills] = useState(true); // Loading state for all bills
-    const [loadingOverallRevenue, setLoadingOverallRevenue] = useState(true); // Loading state for overall revenue
+    const [loadingBills, setLoadingBills] = useState(true);
+    const [loadingOverallRevenue, setLoadingOverallRevenue] = useState(true);
 
-    const { token, user, dashboardRefreshKey } = useAuth(); // Get token, user, and refreshKey
+    const { token, user, dashboardRefreshKey } = useAuth();
 
-    // Effect to fetch ALL bills (for daily expected/actual calculations)
     useEffect(() => {
         if (!user || !token) {
             setError("Shopkeeper not found or not authenticated.");
@@ -22,8 +21,8 @@ export default function Revenue() {
             return;
         }
 
-        setLoadingBills(true); // Set loading true before fetch
-        setError(""); // Clear previous errors for this fetch
+        setLoadingBills(true);
+        setError("");
 
         fetch(`${process.env.REACT_APP_API_URL}/api/bills`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -45,9 +44,8 @@ export default function Revenue() {
                 setBills([]);
                 setLoadingBills(false);
             });
-    }, [user, token, dashboardRefreshKey]); // Add dashboardRefreshKey to dependencies
+    }, [user, token, dashboardRefreshKey]);
 
-    // Effect to fetch OVERALL DELIVERED REVENUE (from new backend endpoint)
     useEffect(() => {
         if (!user || !token) {
             setLoadingOverallRevenue(false);
@@ -56,9 +54,8 @@ export default function Revenue() {
         }
 
         setLoadingOverallRevenue(true);
-        // No need to clear global error here, as it's specific to this fetch
 
-        fetch(`${process.env.REACT_APP_API_URL}/api/bills/revenue`, { // Call the new revenue endpoint
+        fetch(`${process.env.REACT_APP_API_URL}/api/bills/revenue`, {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(async res => {
@@ -70,22 +67,20 @@ export default function Revenue() {
                 return res.json();
             })
             .then(data => {
-                setTotalOverallRevenue(data.total_revenue || 0); // Use the total_revenue field
+                setTotalOverallRevenue(data.total_revenue || 0);
                 setLoadingOverallRevenue(false);
             })
             .catch(err => {
-                setError(prev => prev + (prev ? "\n" : "") + (err.message || "Error loading overall revenue")); // Append error
+                setError(prev => prev + (prev ? "\n" : "") + (err.message || "Error loading overall revenue"));
                 setTotalOverallRevenue(0);
                 setLoadingOverallRevenue(false);
             });
-    }, [user, token, dashboardRefreshKey]); // Dependencies for overall revenue fetch
+    }, [user, token, dashboardRefreshKey]);
 
-    // Function to format date consistently to YYYY-MM-DD UTC
     const formatDate = date => {
         const d = new Date(date);
-        // Get UTC components to ensure consistency regardless of local timezone
         const year = d.getUTCFullYear();
-        const month = (d.getUTCMonth() + 1).toString().padStart(2, '0'); // Months are 0-indexed
+        const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
         const day = d.getUTCDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
     };
@@ -93,14 +88,11 @@ export default function Revenue() {
     const todayStr = formatDate(new Date());
     const selectedStr = formatDate(selectedDate);
 
-    // Revenue calculations for daily expected/actual (uses 'bills' state)
     const calcRevenue = dateStr => {
         const expected = bills
-            // Ensure due_date is formatted to UTC before comparison
             .filter(b => formatDate(new Date(b.due_date)) === dateStr)
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         const actual = bills
-            // Ensure delivery_date is formatted to UTC before comparison
             .filter(b => formatDate(new Date(b.delivery_date)) === dateStr && b.status === "Delivered")
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         return { expected, actual };
@@ -108,8 +100,7 @@ export default function Revenue() {
 
     const { expected: todayExpected, actual: todayActual } = calcRevenue(todayStr);
     const { expected: selectedExpected, actual: selectedActual } = calcRevenue(selectedStr);
-
-    const isLoading = loadingBills || loadingOverallRevenue; // Combined loading state
+    const isLoading = loadingBills || loadingOverallRevenue;
 
     return (
         <div className="p-6 bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen font-inter">
@@ -124,11 +115,13 @@ export default function Revenue() {
             )}
 
             {isLoading ? (
-                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading revenue data...</p>
+                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
+                    Loading revenue data...
+                </p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                    {/* Overall Delivered Revenue */}
-                    <div className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-xl p-8 rounded-xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl flex flex-col items-center justify-center">
+                    {/* Total Delivered Revenue */}
+                    <div className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-xl p-8 rounded-xl flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
                             src="https://placehold.co/100x100/ffffff/000000?text=Total"
                             alt="Total Revenue Icon"
@@ -139,11 +132,11 @@ export default function Revenue() {
                             <span className="mr-2 text-3xl">💰</span> Total Delivered Revenue
                         </h3>
                         <p className="text-5xl font-extrabold">₹{totalOverallRevenue.toLocaleString("en-IN")}</p>
-                        <p className="text-sm opacity-90 mt-3 text-center">Sum of all delivered bills across time.</p>
+                        <p className="text-sm opacity-90 mt-3 text-center">Based on {bills.length} bills delivered.</p>
                     </div>
 
-                    {/* Today's Revenue Summary */}
-                    <div className="bg-white shadow-xl p-8 rounded-xl transform transition-all duration-500 hover:scale-105 hover:shadow-2xl flex flex-col items-center justify-center">
+                    {/* Today's Revenue */}
+                    <div className="bg-white shadow-xl p-8 rounded-xl flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
                             src="https://placehold.co/100x100/e0ffe0/006400?text=Today"
                             alt="Today's Revenue Icon"
@@ -160,7 +153,7 @@ export default function Revenue() {
                     </div>
 
                     {/* Revenue by Selected Date */}
-                    <div className="bg-white shadow-xl p-8 rounded-xl col-span-1 md:col-span-2 lg:col-span-1 transform transition-all duration-500 hover:scale-105 hover:shadow-2xl flex flex-col items-center">
+                    <div className="bg-white shadow-xl p-8 rounded-xl col-span-1 md:col-span-2 lg:col-span-1 flex flex-col items-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
                             src="https://placehold.co/100x100/e0f2f7/000080?text=Select"
                             alt="Select Date Icon"
@@ -173,6 +166,9 @@ export default function Revenue() {
                         <Calendar
                             onChange={setSelectedDate}
                             value={selectedDate}
+                            tileClassName={({ date }) =>
+                                formatDate(date) === todayStr ? "bg-yellow-100 font-bold text-yellow-800 rounded-lg" : ""
+                            }
                             className="mb-6 rounded-lg shadow-lg border border-gray-300 p-3 w-full max-w-xs"
                         />
                         <div className="space-y-3 text-xl w-full text-center">
@@ -182,7 +178,7 @@ export default function Revenue() {
                     </div>
                 </div>
             )}
-            {/* Basic CSS for animations (can be moved to index.css or a dedicated styles file) */}
+
             <style>
                 {`
                 @keyframes fadeIn {
