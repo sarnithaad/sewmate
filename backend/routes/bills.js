@@ -41,8 +41,8 @@ router.post("/", authenticate, async (req, res) => {
         // 2. Insert the new bill with the generated bill_number
         const [billResult] = await conn.execute(
             `INSERT INTO bills
-               (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status, design_url)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked', ?)`,
+                (shopkeeper_id, bill_number, customer_name, mobile, dress_type, order_date, due_date, total_value, status, design_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked', ?)`,
             [
                 shopkeeperId,
                 newBillNumber, // Use the auto-generated bill number
@@ -81,10 +81,10 @@ router.get("/", authenticate, async (req, res) => {
     try {
         const [bills] = await db.execute(
             `SELECT b.*, d.measurements_json, d.extras_json
-               FROM bills b
-               LEFT JOIN bill_details d ON b.id = d.bill_id
-               WHERE b.shopkeeper_id = ?
-               ORDER BY b.order_date DESC`, // Order by date
+                FROM bills b
+                LEFT JOIN bill_details d ON b.id = d.bill_id
+                WHERE b.shopkeeper_id = ?
+                ORDER BY b.order_date DESC`, // Order by date
             [shopkeeperId]
         );
         res.json(bills);
@@ -102,9 +102,9 @@ router.get("/:id", authenticate, async (req, res) => {
     try {
         const [bills] = await db.execute(
             `SELECT b.*, d.measurements_json, d.extras_json
-               FROM bills b
-               LEFT JOIN bill_details d ON b.id = d.bill_id
-               WHERE b.id = ? AND b.shopkeeper_id = ?`,
+                FROM bills b
+                LEFT JOIN bill_details d ON b.id = d.bill_id
+                WHERE b.id = ? AND b.shopkeeper_id = ?`,
             [billId, shopkeeperId]
         );
 
@@ -135,23 +135,23 @@ router.get('/dashboard-deliveries', authenticate, async (req, res) => {
     try {
         const [overdue] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
-               FROM bills
-               WHERE shopkeeper_id = ? AND due_date < ? AND status != 'Delivered' AND status != 'Packed'
-               ORDER BY due_date ASC`, // Order overdue bills
+                FROM bills
+                WHERE shopkeeper_id = ? AND due_date < ? AND status != 'Delivered' AND status != 'Packed'
+                ORDER BY due_date ASC`, // Order overdue bills
             [shopkeeperId, todayStr]
         );
         const [todayBills] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
-               FROM bills
-               WHERE shopkeeper_id = ? AND due_date = ? AND status != 'Delivered' AND status != 'Packed'
-               ORDER BY due_date ASC`, // Order today's bills
+                FROM bills
+                WHERE shopkeeper_id = ? AND due_date = ? AND status != 'Delivered' AND status != 'Packed'
+                ORDER BY due_date ASC`, // Order today's bills
             [shopkeeperId, todayStr]
         );
         const [upcoming] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
-               FROM bills
-               WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ? AND status != 'Delivered' AND status != 'Packed'
-               ORDER BY due_date ASC`, // Order upcoming bills
+                FROM bills
+                WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ? AND status != 'Delivered' AND status != 'Packed'
+                ORDER BY due_date ASC`, // Order upcoming bills
             [shopkeeperId, todayStr, next2Str]
         );
         res.json({ overdue, today: todayBills, upcoming });
@@ -169,8 +169,8 @@ router.get("/by-date/:date", authenticate, async (req, res) => {
     try {
         const [bills] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
-               FROM bills WHERE shopkeeper_id = ? AND due_date = ?
-               ORDER BY bill_number ASC`, // Order for consistency
+                FROM bills WHERE shopkeeper_id = ? AND due_date = ?
+                ORDER BY bill_number ASC`, // Order for consistency
             [shopkeeperId, date]
         );
         res.json({ bills }); // Return as { bills: [...] }
@@ -270,17 +270,50 @@ router.get("/overdue", authenticate, async (req, res) => {
     try {
         const [rows] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, status, total_value
-               FROM bills
-               WHERE shopkeeper_id = ?
-                 AND status NOT IN ('Packed', 'Delivered')
-                 AND due_date < ?
-               ORDER BY due_date ASC`, // Order by due date
+                FROM bills
+                WHERE shopkeeper_id = ?
+                    AND status NOT IN ('Packed', 'Delivered')
+                    AND due_date < ?
+                ORDER BY due_date ASC`, // Order by due date
             [shopkeeperId, todayStr]
         );
         res.json(rows);
     } catch (err) {
         console.error("❌ Overdue fetch error:", err);
         res.status(500).json({ error: "Error fetching overdue tasks" });
+    }
+});
+
+// ✅ Get total revenue for a shopkeeper (new endpoint for Revenue.jsx)
+// Allows filtering by start_date and end_date query parameters
+router.get("/revenue", authenticate, async (req, res) => {
+    const shopkeeperId = req.shopkeeperId;
+    const { start_date, end_date } = req.query; // Get date range from query parameters
+
+    let query = `
+        SELECT SUM(total_value) AS total_revenue
+        FROM bills
+        WHERE shopkeeper_id = ? AND status = 'Delivered'
+    `;
+    const queryParams = [shopkeeperId];
+
+    if (start_date) {
+        query += ` AND delivery_date >= ?`;
+        queryParams.push(start_date);
+    }
+    if (end_date) {
+        query += ` AND delivery_date <= ?`;
+        queryParams.push(end_date);
+    }
+
+    try {
+        const [result] = await db.execute(query, queryParams);
+        const totalRevenue = result[0].total_revenue || 0; // Default to 0 if no revenue
+
+        res.json({ total_revenue: totalRevenue });
+    } catch (err) {
+        console.error("❌ Revenue fetch error:", err);
+        res.status(500).json({ error: "Failed to fetch revenue" });
     }
 });
 
