@@ -196,10 +196,10 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
     const selectedMeasurements = measurementsList[bill.dress_type] || [];
 
     return (
-        <div className="p-6 bg-gradient-to-br from-blue-50 to-green-50 min-h-screen font-inter">
-            <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
+        <div className="p-6 bg-gradient-to-br from-[#F8F1E5] to-[#EFE3D5] min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-[#5C4033] mb-8 rounded-xl p-4 bg-[#FDF6EC] shadow-xl text-center animate-fade-in flex items-center justify-center">
                 <img
-                    src="https://placehold.co/50x50/818cf8/ffffff?text=Bill"
+                    src="https://placehold.co/50x50/5C4033/FDF6EC?text=Bill"
                     alt="New Bill Icon"
                     className="h-12 w-12 rounded-full mr-4 shadow-md"
                     onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/50x50/cccccc/333333?text=Err'; }}
@@ -207,13 +207,13 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                 🧾 New Bill Entry
             </h2>
 
-            <form className="space-y-6 bg-white p-8 rounded-xl shadow-xl animate-fade-in-up" onSubmit={handleSave}>
+            <form className="space-y-6 bg-[#FDF6EC] p-8 rounded-xl shadow-xl animate-fade-in-up" onSubmit={handleSave}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Customer Name */}
                     <input
                         type="text"
                         placeholder="Customer Name"
-                        className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                        className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                         value={bill.customer_name}
                         onChange={e => handleChange("customer_name", e.target.value)}
                         required
@@ -222,7 +222,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     <input
                         type="tel" // Use type="tel" for mobile numbers
                         placeholder="Mobile"
-                        className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                        className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                         value={bill.mobile}
                         onChange={e => handleChange("mobile", e.target.value)}
                         pattern="[0-9]{10}" // Basic pattern for 10 digits
@@ -233,7 +233,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     <select
                         value={bill.dress_type}
                         onChange={e => handleChange("dress_type", e.target.value)}
-                        className="border border-gray-300 p-3 rounded-lg w-full bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                        className="border border-gray-300 p-3 rounded-lg w-full bg-white focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                         required
                     >
                         {dressTypes.map(d => (
@@ -246,7 +246,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     <label className="block text-sm font-medium text-gray-700">Order Date:
                         <input
                             type="date"
-                            className="border border-gray-300 p-3 rounded-lg w-full mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                            className="border border-gray-300 p-3 rounded-lg w-full mt-1 focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                             value={bill.order_date}
                             onChange={e => handleChange("order_date", e.target.value)}
                             required
@@ -256,7 +256,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     <label className="block text-sm font-medium text-gray-700">Due Date:
                         <input
                             type="date"
-                            className="border border-gray-300 p-3 rounded-lg w-full mt-1 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                            className="border border-gray-300 p-3 rounded-lg w-full mt-1 focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                             value={bill.due_date}
                             onChange={e => handleChange("due_date", e.target.value)}
                             required
@@ -275,7 +275,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                                 key={m}
                                 type="text"
                                 placeholder={m}
-                                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
+                                className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                                 value={bill.measurements[m] || ""}
                                 onChange={e => handleMeasurementInput(m, e.target.value)}
                             />
@@ -292,7 +292,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                         <button
                             type="button"
                             onClick={handleAddExtra}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            className="px-4 py-2 bg-[#A67B5B] text-white rounded-full shadow-md hover:bg-[#8B654A] transition-all duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#C3A183]"
                         >
                             + Add Item
                         </button>
@@ -305,14 +305,14 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                             <input
                                 type="text"
                                 placeholder="Item Name"
-                                className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                                className="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                                 value={extra.name}
                                 onChange={e => handleExtraChange(index, "name", e.target.value)}
                             />
                             <input
                                 type="number"
                                 placeholder="₹ Price"
-                                className="border border-gray-300 p-2 rounded-lg w-32 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                                className="border border-gray-300 p-2 rounded-lg w-32 focus:outline-none focus:ring-2 focus:ring-[#A67B5B] transition-all duration-200"
                                 value={extra.price}
                                 onChange={e => handleExtraChange(index, "price", e.target.value)}
                             />
@@ -323,7 +323,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                 {/* Design Selector */}
                 <div>
                     <h3 className="font-bold text-xl text-gray-800 mb-3 flex items-center">
-                        <span className="mr-2 text-2xl">🎨</span> Choose Design (optional) - <span className="text-indigo-700 ml-1">{bill.dress_type}</span>
+                        <span className="mr-2 text-2xl">🎨</span> Choose Design (optional) - <span className="text-[#5C4033] ml-1">{bill.dress_type}</span>
                     </h3>
                     {designFetchError && (
                         <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-4 shadow-md animate-slide-down">
@@ -347,7 +347,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                                     key={design.id}
                                     className={`relative border-2 rounded-lg cursor-pointer p-1 transition-all duration-300 transform hover:scale-105 hover:shadow-lg
                                         ${selectedDesignUrl === `${process.env.REACT_APP_API_URL}${design.image_url}`
-                                            ? "ring-4 ring-indigo-600 border-indigo-600 shadow-xl"
+                                            ? "ring-4 ring-[#5C4033] border-[#5C4033] shadow-xl"
                                             : "border-gray-300 shadow-md"
                                         }`}
                                     onClick={() => setSelectedDesignUrl(`${process.env.REACT_APP_API_URL}${design.image_url}`)}
@@ -360,7 +360,7 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                                     />
                                     <div className="text-center text-xs mt-1 font-medium">{design.name} ({design.part})</div>
                                     {selectedDesignUrl === `${process.env.REACT_APP_API_URL}${design.image_url}` && (
-                                        <div className="absolute top-1 right-1 bg-indigo-600 text-white rounded-full p-1 text-xs">
+                                        <div className="absolute top-1 right-1 bg-[#5C4033] text-white rounded-full p-1 text-xs">
                                             ✔
                                         </div>
                                     )}
@@ -370,14 +370,14 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                     </div>
                 </div>
 
-                <div className="text-3xl font-bold text-green-700 mt-6 p-4 bg-green-50 rounded-lg shadow-md text-center">
+                <div className="text-3xl font-bold text-[#5C4033] mt-6 p-4 bg-[#EFE3D5] rounded-lg shadow-md text-center">
                     Total: ₹{bill.total_value.toLocaleString("en-IN")}
                 </div>
 
                 <div className="flex flex-wrap gap-4 mt-6 justify-center">
                     <button
                         type="submit"
-                        className="bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-75"
+                        className="bg-[#A67B5B] text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-[#8B654A] focus:outline-none focus:ring-2 focus:ring-[#C3A183] focus:ring-opacity-75"
                     >
                         💾 Save & Show Print Preview
                     </button>
@@ -387,14 +387,14 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
                             <button
                                 type="button"
                                 onClick={handlePrint}
-                                className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75"
+                                className="bg-[#5C4033] text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-[#4A3428] focus:outline-none focus:ring-2 focus:ring-[#8B654A] focus:ring-opacity-75"
                             >
                                 🖨️ Print Bill
                             </button>
                             <button
                                 type="button"
                                 onClick={resetForm} // New button to reset the form
-                                className="bg-gray-500 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-opacity-75"
+                                className="bg-[#B0C4B1] text-[#5C4033] px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-[#9BB89F] focus:outline-none focus:ring-2 focus:ring-[#D1E0D2] focus:ring-opacity-75"
                             >
                                 ✨ New Bill
                             </button>
@@ -412,8 +412,8 @@ export default function NewBill({ onBillSaved }) { // Accept onBillSaved prop
             </form>
 
             {showPrint && generatedBillNumber && ( // Only show printable bill if bill number is generated
-                <div className="mt-8 bg-white p-8 rounded-xl shadow-xl animate-fade-in-up">
-                    <h3 className="text-2xl font-bold text-center text-indigo-700 mb-6">Print Preview</h3>
+                <div className="mt-8 bg-[#FDF6EC] p-8 rounded-xl shadow-xl animate-fade-in-up">
+                    <h3 className="text-2xl font-bold text-center text-[#5C4033] mb-6">Print Preview</h3>
                     <div ref={printRef}>
                         {/* Pass the generated bill number to PrintableBill */}
                         <PrintableBill bill={{ ...bill, bill_number: generatedBillNumber, design_url: selectedDesignUrl }} />
