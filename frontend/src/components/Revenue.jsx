@@ -103,8 +103,8 @@ export default function Revenue() {
     const isLoading = loadingBills || loadingOverallRevenue;
 
     return (
-        <div className="p-6 bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen font-inter">
-            <h2 className="text-4xl font-extrabold text-indigo-800 mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in">
+        <div className="p-6 bg-gradient-to-br from-[#FDF0F3] to-[#F2E5E8] min-h-screen font-inter">
+            <h2 className="text-4xl font-extrabold text-[#754F4F] mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in">
                 <span className="mr-3">📈</span> Revenue Dashboard
             </h2>
 
@@ -115,15 +115,15 @@ export default function Revenue() {
             )}
 
             {isLoading ? (
-                <p className="text-gray-700 text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
+                <p className="text-[#754F4F] text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
                     Loading revenue data...
                 </p>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                     {/* Total Delivered Revenue */}
-                    <div className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white shadow-xl p-8 rounded-xl flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
+                    <div className="bg-gradient-to-br from-[#D1A6AD] to-[#C2949D] text-white shadow-xl p-8 rounded-xl flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
-                            src="https://placehold.co/100x100/ffffff/000000?text=Total"
+                            src="https://placehold.co/100x100/ffffff/D1A6AD?text=Total"
                             alt="Total Revenue Icon"
                             className="mb-4 rounded-full border-4 border-white shadow-lg"
                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
@@ -138,42 +138,42 @@ export default function Revenue() {
                     {/* Today's Revenue */}
                     <div className="bg-white shadow-xl p-8 rounded-xl flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
-                            src="https://placehold.co/100x100/e0ffe0/006400?text=Today"
+                            src="https://placehold.co/100x100/F2E5E8/754F4F?text=Today" // Adjusted to palette
                             alt="Today's Revenue Icon"
-                            className="mb-4 rounded-full border-4 border-green-500 shadow-lg"
+                            className="mb-4 rounded-full border-4 border-[#D1A6AD] shadow-lg" // Adjusted to palette
                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
                         />
-                        <h3 className="text-2xl font-semibold text-green-700 mb-4 flex items-center">
+                        <h3 className="text-2xl font-semibold text-[#754F4F] mb-4 flex items-center">
                             <span className="mr-2 text-3xl">📅</span> Today's Revenue
                         </h3>
                         <div className="space-y-3 text-xl text-center">
-                            <p>🧾 Expected: <span className="font-bold text-gray-800">₹{todayExpected.toLocaleString("en-IN")}</span></p>
-                            <p>✅ Actual: <span className="font-bold text-gray-800">₹{todayActual.toLocaleString("en-IN")}</span></p>
+                            <p>🧾 Expected: <span className="font-bold text-[#5A3F44]">₹{todayExpected.toLocaleString("en-IN")}</span></p>
+                            <p>✅ Actual: <span className="font-bold text-[#5A3F44]">₹{todayActual.toLocaleString("en-IN")}</span></p>
                         </div>
                     </div>
 
                     {/* Revenue by Selected Date */}
                     <div className="bg-white shadow-xl p-8 rounded-xl col-span-1 md:col-span-2 lg:col-span-1 flex flex-col items-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
-                            src="https://placehold.co/100x100/e0f2f7/000080?text=Select"
+                            src="https://placehold.co/100x100/F9E9EC/AD8B8B?text=Select" // Adjusted to palette
                             alt="Select Date Icon"
-                            className="mb-4 rounded-full border-4 border-blue-500 shadow-lg"
+                            className="mb-4 rounded-full border-4 border-[#C2949D] shadow-lg" // Adjusted to palette
                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
                         />
-                        <h3 className="text-2xl font-semibold text-blue-700 mb-6 flex items-center">
+                        <h3 className="text-2xl font-semibold text-[#754F4F] mb-6 flex items-center">
                             <span className="mr-2 text-3xl">📆</span> Revenue on Selected Date
                         </h3>
                         <Calendar
                             onChange={setSelectedDate}
                             value={selectedDate}
                             tileClassName={({ date }) =>
-                                formatDate(date) === todayStr ? "bg-yellow-100 font-bold text-yellow-800 rounded-lg" : ""
+                                formatDate(date) === todayStr ? "bg-[#FBE9EC] font-bold text-[#AD8B8B] rounded-lg" : "" // Adjusted to palette
                             }
-                            className="mb-6 rounded-lg shadow-lg border border-gray-300 p-3 w-full max-w-xs"
+                            className="mb-6 rounded-lg shadow-lg border border-[#E0C0C6] p-3 w-full max-w-xs" // Adjusted to palette
                         />
                         <div className="space-y-3 text-xl w-full text-center">
-                            <p>🧾 Expected (due): <span className="font-bold text-gray-800">₹{selectedExpected.toLocaleString("en-IN")}</span></p>
-                            <p>✅ Actual (delivered): <span className="font-bold text-gray-800">₹{selectedActual.toLocaleString("en-IN")}</span></p>
+                            <p>🧾 Expected (due): <span className="font-bold text-[#5A3F44]">₹{selectedExpected.toLocaleString("en-IN")}</span></p>
+                            <p>✅ Actual (delivered): <span className="font-bold text-[#5A3F44]">₹{selectedActual.toLocaleString("en-IN")}</span></p>
                         </div>
                     </div>
                 </div>
