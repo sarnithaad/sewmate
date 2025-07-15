@@ -88,7 +88,7 @@ export default function ShopkeeperLogin() {
                         className={`w-full px-4 py-3 rounded-lg font-bold text-lg transition-all duration-300 ease-in-out transform hover:scale-105 shadow-md
                             ${loading
                                 ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                                : "bg-[#D1A6AD] text-white hover:bg-[#C2949D] focus:outline-none focus:ring-2 focus:ring-[#E0C0C6] focus:ring-opacity-75"}`} {/* Updated colors */}
+                                : "bg-[#D1A6AD] text-white hover:bg-[#C2949D] focus:outline-none focus:ring-2 focus:ring-[#E0C0C6] focus:ring-opacity-75"}`} 
                     >
                         {loading ? (
                             <span className="flex items-center justify-center">
