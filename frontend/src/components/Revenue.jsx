@@ -96,10 +96,12 @@ export default function Revenue() {
     // Revenue calculations for daily expected/actual (uses 'bills' state)
     const calcRevenue = dateStr => {
         const expected = bills
-            .filter(b => formatDate(new Date(b.due_date)) === dateStr) // Ensure due_date is also formatted consistently
+            // MODIFIED: Ensure due_date is formatted to UTC before comparison
+            .filter(b => formatDate(new Date(b.due_date)) === dateStr)
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         const actual = bills
-            .filter(b => formatDate(new Date(b.delivery_date)) === dateStr && b.status === "Delivered") // Ensure delivery_date is also formatted consistently
+            // MODIFIED: Ensure delivery_date is formatted to UTC before comparison
+            .filter(b => formatDate(new Date(b.delivery_date)) === dateStr && b.status === "Delivered")
             .reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0);
         return { expected, actual };
     };
