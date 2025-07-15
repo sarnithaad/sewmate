@@ -138,9 +138,9 @@ export default function Revenue() {
                     {/* Today's Revenue */}
                     <div className="bg-white shadow-xl p-8 rounded-xl flex flex-col items-center justify-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
-                            src="https://placehold.co/100x100/F2E5E8/754F4F?text=Today" // Adjusted to palette
+                            src="https://placehold.co/100x100/F2E5E8/754F4F?text=Today" 
                             alt="Today's Revenue Icon"
-                            className="mb-4 rounded-full border-4 border-[#D1A6AD] shadow-lg" // Adjusted to palette
+                            className="mb-4 rounded-full border-4 border-[#D1A6AD] shadow-lg" 
                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
                         />
                         <h3 className="text-2xl font-semibold text-[#754F4F] mb-4 flex items-center">
@@ -155,9 +155,9 @@ export default function Revenue() {
                     {/* Revenue by Selected Date */}
                     <div className="bg-white shadow-xl p-8 rounded-xl col-span-1 md:col-span-2 lg:col-span-1 flex flex-col items-center transition-all duration-500 hover:scale-105 hover:shadow-2xl">
                         <img
-                            src="https://placehold.co/100x100/F9E9EC/AD8B8B?text=Select" // Adjusted to palette
+                            src="https://placehold.co/100x100/F9E9EC/AD8B8B?text=Select" 
                             alt="Select Date Icon"
-                            className="mb-4 rounded-full border-4 border-[#C2949D] shadow-lg" // Adjusted to palette
+                            className="mb-4 rounded-full border-4 border-[#C2949D] shadow-lg" 
                             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
                         />
                         <h3 className="text-2xl font-semibold text-[#754F4F] mb-6 flex items-center">
@@ -167,9 +167,9 @@ export default function Revenue() {
                             onChange={setSelectedDate}
                             value={selectedDate}
                             tileClassName={({ date }) =>
-                                formatDate(date) === todayStr ? "bg-[#FBE9EC] font-bold text-[#AD8B8B] rounded-lg" : "" // Adjusted to palette
+                                formatDate(date) === todayStr ? "bg-[#FBE9EC] font-bold text-[#AD8B8B] rounded-lg" : "" 
                             }
-                            className="mb-6 rounded-lg shadow-lg border border-[#E0C0C6] p-3 w-full max-w-xs" // Adjusted to palette
+                            className="mb-6 rounded-lg shadow-lg border border-[#E0C0C6] p-3 w-full max-w-xs" 
                         />
                         <div className="space-y-3 text-xl w-full text-center">
                             <p>🧾 Expected (due): <span className="font-bold text-[#5A3F44]">₹{selectedExpected.toLocaleString("en-IN")}</span></p>
