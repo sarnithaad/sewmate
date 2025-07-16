@@ -108,7 +108,7 @@ router.get("/:id", authenticate, async (req, res) => {
     }
 });
 
-// ✅ Dashboard Deliveries Summary
+        // ✅ Dashboard Deliveries Summary
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
 
@@ -124,7 +124,7 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
         const [overdue] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
              FROM bills
-             WHERE shopkeeper_id = ? AND due_date < ? AND status NOT IN ('Delivered', 'Packed')
+             WHERE shopkeeper_id = ? AND DATE(due_date) < ? AND status NOT IN ('Delivered', 'Packed')
              ORDER BY due_date ASC`,
             [shopkeeperId, todayStr]
         );
@@ -132,7 +132,7 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
         const [todayBills] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
              FROM bills
-             WHERE shopkeeper_id = ? AND due_date = ? AND status NOT IN ('Delivered', 'Packed')
+             WHERE shopkeeper_id = ? AND DATE(due_date) = ? AND status NOT IN ('Delivered', 'Packed')
              ORDER BY due_date ASC`,
             [shopkeeperId, todayStr]
         );
@@ -140,7 +140,7 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
         const [upcoming] = await db.execute(
             `SELECT id, bill_number, customer_name, due_date, total_value, status
              FROM bills
-             WHERE shopkeeper_id = ? AND due_date > ? AND due_date <= ? AND status NOT IN ('Delivered', 'Packed')
+             WHERE shopkeeper_id = ? AND DATE(due_date) > ? AND DATE(due_date) <= ? AND status NOT IN ('Delivered', 'Packed')
              ORDER BY due_date ASC`,
             [shopkeeperId, todayStr, next2Str]
         );
@@ -151,6 +151,7 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
         res.status(500).json({ error: "Failed to load delivery dashboard" });
     }
 });
+
 
 // ✅ Bills by date
 router.get("/by-date/:date", authenticate, async (req, res) => {
