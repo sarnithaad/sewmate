@@ -144,7 +144,9 @@ export default function CustomerList() {
                                     <div>
                                         Total Value:{" "}
                                         <strong className="text-black">
-                                            ₹{customerBookings.reduce((sum, b) => sum + (b.total_value || 0), 0)}
+{new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
+  customerBookings.reduce((sum, b) => sum + parseFloat(b.total_value || 0), 0)
+)}
                                         </strong>
                                     </div>
                                 </div>
