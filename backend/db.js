@@ -16,7 +16,7 @@ const pool = mysql.createPool({
     port: 28177,
     user: "avnadmin",
     password: "AVNS_K6mIDQVbua-l8d_JvPy",
-    database: defaultdb,
+    database: "defaultdb",
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
