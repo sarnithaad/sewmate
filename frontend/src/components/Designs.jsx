@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import DesignUpload from "./DesignUpload";
 import { useAuth } from "../context/AuthContext";
 
-// Placeholder data - replace with your actual data source if different
 const designTypes = [
     { label: "Blouse", value: "blouse" },
     { label: "Kurti", value: "kurti" },
     { label: "Other", value: "other" },
 ];
 
-const parts = [ "sleeve", "back", "front"];
+const parts = ["sleeve", "back", "front"];
 
 export default function Designs() {
     const [dressType, setDressType] = useState(designTypes[0].value);
@@ -62,7 +61,7 @@ export default function Designs() {
         <div className="p-6 min-h-screen bg-gradient-to-br from-[#FDF0F3] to-[#F2E5E8] font-inter">
             <h2 className="text-4xl font-extrabold text-[#754F4F] mb-8 rounded-xl p-4 bg-white shadow-xl text-center animate-fade-in flex items-center justify-center">
                 <img
-                    src="https://placehold.co/50x50/754F4F/FFFFFF?text=Design" // Updated for contrast
+                    src="https://placehold.co/50x50/754F4F/FFFFFF?text=Design"
                     alt="Designs Icon"
                     className="h-12 w-12 rounded-full mr-4 shadow-md"
                     onError={(e) => {
@@ -87,7 +86,7 @@ export default function Designs() {
                             className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md ${
                                 dressType === dt.value
                                     ? "bg-[#D1A6AD] text-white border-[#C2949D] shadow-lg"
-                                    : "bg-[#FDF0F3] border-[#E0C0C6] text-[#754F4F] hover:bg-[#EBE0E2] hover:text-[#754F4F]"
+                                    : "bg-[#FDF0F3] border-[#E0C0C6] text-[#754F4F] hover:bg-[#EBE0E2]"
                             }`}
                         >
                             {dt.label}
@@ -110,7 +109,7 @@ export default function Designs() {
                             className={`px-5 py-2 rounded-full font-medium shadow-sm border-2 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md ${
                                 part === p
                                     ? "bg-[#D1A6AD] text-white border-[#C2949D] shadow-lg"
-                                    : "bg-[#FDF0F3] border-[#E0C0C6] text-[#754F4F] hover:bg-[#EBE0E2] hover:text-[#754F4F]"
+                                    : "bg-[#FDF0F3] border-[#E0C0C6] text-[#754F4F] hover:bg-[#EBE0E2]"
                             }`}
                         >
                             {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -128,11 +127,13 @@ export default function Designs() {
 
             {/* Uploaded Designs */}
             <h3 className="text-2xl font-bold text-[#754F4F] mt-10 mb-6 flex items-center animate-fade-in-up">
-                <span className="mr-2 text-3xl">🖼️</span> Uploaded Designs ({dressType} - {part.charAt(0).toUpperCase() + part.slice(1)})
+                <span className="mr-2 text-3xl">🖼️</span> Uploaded Designs ({dressType} - {part})
             </h3>
 
             {loading ? (
-                <p className="text-[#754F4F] text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">Loading designs...</p>
+                <p className="text-[#754F4F] text-xl p-6 bg-white rounded-lg shadow-lg text-center animate-pulse">
+                    Loading designs...
+                </p>
             ) : error ? (
                 <div className="bg-red-100 border border-red-300 text-red-700 p-4 rounded-lg shadow-md animate-slide-down">
                     ❌ {error}
@@ -158,7 +159,7 @@ export default function Designs() {
                             className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl border border-[#E0C0C6]"
                         >
                             <img
-                                src={`${process.env.REACT_APP_API_URL}${design.image_url}`}
+                                src={design.image_url}
                                 alt={design.name}
                                 className="w-full h-40 object-cover border-b border-[#E0C0C6]"
                                 onError={(e) => {
