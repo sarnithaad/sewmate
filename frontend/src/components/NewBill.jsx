@@ -280,52 +280,73 @@ export default function NewBill({ onBillSaved }) {
             </div>
           ))}
         </div>
-            {/* Design Selector */}
-                <div>
-                    <h3 className="font-bold text-xl text-gray-800 mb-3 flex items-center">
-                        <span className="mr-2 text-2xl">🎨</span> Choose Design (optional) - <span className="text-[#754F4F] ml-1">{bill.dress_type}</span>
-                    </h3>
-                    {designFetchError && (
-                        <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-4 shadow-md animate-slide-down">
-                            ❌ {designFetchError}
-                        </div>
-                    )}
-                    <div className="flex gap-4 flex-wrap justify-center">
-                        {designs.length === 0 && !designFetchError ? (
-                            <div className="text-gray-500 italic text-center py-4">
-                                <p>No uploaded designs available for {bill.dress_type}.</p>
-                                <img
-                                    src="https://placehold.co/100x100/FDF0F3/754F4F?text=No+Design"
-                                    alt="No Designs Icon"
-                                    className="mx-auto mt-4 rounded-full shadow-sm"
-                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/100x100/cccccc/333333?text=Error'; }}
-                                />
-                            </div>
-                        ) : (
-                            designs.map(design => (
-                                <div
-                                    key={design.id}
-                                    className={relative border-2 rounded-lg cursor-pointer p-1 transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${selectedDesignUrl === ${process.env.REACT_APP_API_URL}${design.image_url} ? "ring-4 ring-[#754F4F] border-[#754F4F] shadow-xl": "border-gray-300 shadow-md"
-                                        }
-                                    onClick={() => setSelectedDesignUrl(${process.env.REACT_APP_API_URL}${design.image_url})}
-                                >
-                                    <img
-                                        src={${process.env.REACT_APP_API_URL}${design.image_url}}
-                                        alt={design.name}
-                                        className="h-28 w-28 object-cover rounded-md"
-                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/112x112/cccccc/333333?text=No+Image"; }} // Fallback
-                                    />
-                                    <div className="text-center text-xs mt-1 font-medium">{design.name} ({design.part})</div>
-                                    {selectedDesignUrl === ${process.env.REACT_APP_API_URL}${design.image_url} && (
-                                        <div className="absolute top-1 right-1 bg-[#754F4F] text-white rounded-full p-1 text-xs">
-                                            ✔
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
+           {/* Design Selector */}
+<div>
+  <h3 className="font-bold text-xl text-gray-800 mb-3 flex items-center">
+    <span className="mr-2 text-2xl">🎨</span> Choose Design (optional) -{" "}
+    <span className="text-[#754F4F] ml-1">{bill.dress_type}</span>
+  </h3>
+
+  {designFetchError && (
+    <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-4 shadow-md animate-slide-down">
+      ❌ {designFetchError}
+    </div>
+  )}
+
+  <div className="flex gap-4 flex-wrap justify-center">
+    {designs.length === 0 && !designFetchError ? (
+      <div className="text-gray-500 italic text-center py-4">
+        <p>No uploaded designs available for {bill.dress_type}.</p>
+        <img
+          src="https://placehold.co/100x100/FDF0F3/754F4F?text=No+Design"
+          alt="No Designs Icon"
+          className="mx-auto mt-4 rounded-full shadow-sm"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src =
+              "https://placehold.co/100x100/cccccc/333333?text=Error";
+          }}
+        />
+      </div>
+    ) : (
+      designs.map((design) => {
+        const designUrl = `${process.env.REACT_APP_API_URL}${design.image_url}`;
+        const isSelected = selectedDesignUrl === designUrl;
+        return (
+          <div
+            key={design.id}
+            className={`relative border-2 rounded-lg cursor-pointer p-1 transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${
+              isSelected
+                ? "ring-4 ring-[#754F4F] border-[#754F4F] shadow-xl"
+                : "border-gray-300 shadow-md"
+            }`}
+            onClick={() => setSelectedDesignUrl(designUrl)}
+          >
+            <img
+              src={designUrl}
+              alt={design.name}
+              className="h-28 w-28 object-cover rounded-md"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src =
+                  "https://placehold.co/112x112/cccccc/333333?text=No+Image";
+              }}
+            />
+            <div className="text-center text-xs mt-1 font-medium">
+              {design.name} ({design.part})
+            </div>
+            {isSelected && (
+              <div className="absolute top-1 right-1 bg-[#754F4F] text-white rounded-full p-1 text-xs">
+                ✔
+              </div>
+            )}
+          </div>
+        );
+      })
+    )}
+  </div>
+</div>
+
         {/* Total + Actions */}
         <div className="text-2xl font-bold text-[#754F4F] text-center">Total: ₹{bill.total_value}</div>
         <div className="flex gap-4 justify-center">
