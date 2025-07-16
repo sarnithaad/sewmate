@@ -305,10 +305,7 @@ export default function NewBill({ onBillSaved }) {
                             designs.map(design => (
                                 <div
                                     key={design.id}
-                                    className={relative border-2 rounded-lg cursor-pointer p-1 transition-all duration-300 transform hover:scale-105 hover:shadow-lg
-                                        ${selectedDesignUrl === ${process.env.REACT_APP_API_URL}${design.image_url}
-                                            ? "ring-4 ring-[#754F4F] border-[#754F4F] shadow-xl"
-                                            : "border-gray-300 shadow-md"
+                                    className={relative border-2 rounded-lg cursor-pointer p-1 transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${selectedDesignUrl === ${process.env.REACT_APP_API_URL}${design.image_url} ? "ring-4 ring-[#754F4F] border-[#754F4F] shadow-xl": "border-gray-300 shadow-md"
                                         }}
                                     onClick={() => setSelectedDesignUrl(${process.env.REACT_APP_API_URL}${design.image_url})}
                                 >
