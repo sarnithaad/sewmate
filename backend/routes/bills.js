@@ -59,9 +59,12 @@ router.get("/revenue/monthly", authenticate, async (req, res) => {
 // ✅ Overdue tasks
 router.get("/overdue", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split("T")[0];
+   const now = new Date();
+const istOffsetMs = 5.5 * 60 * 60 * 1000;
+const istDate = new Date(now.getTime() + istOffsetMs);
+istDate.setHours(0, 0, 0, 0);
+const todayStr = istDate.toISOString().split("T")[0];
+
 
     try {
         const [rows] = await db.execute(
@@ -79,14 +82,19 @@ router.get("/overdue", authenticate, async (req, res) => {
 });
 
 // ✅ Dashboard delivery summary
+// ✅ Dashboard delivery summary
 router.get("/dashboard-deliveries", authenticate, async (req, res) => {
     const shopkeeperId = req.shopkeeperId;
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split("T")[0];
 
-    const next2 = new Date(today);
-    next2.setUTCDate(today.getUTCDate() + 2);
+    // Convert to IST (UTC+5:30) and remove time component
+    const now = new Date();
+    const istOffsetMs = 5.5 * 60 * 60 * 1000;
+    const istDate = new Date(now.getTime() + istOffsetMs);
+    istDate.setHours(0, 0, 0, 0);
+    const todayStr = istDate.toISOString().split("T")[0];
+
+    const next2 = new Date(istDate);
+    next2.setDate(istDate.getDate() + 2);
     const next2Str = next2.toISOString().split("T")[0];
 
     try {
@@ -117,6 +125,7 @@ router.get("/dashboard-deliveries", authenticate, async (req, res) => {
         res.status(500).json({ error: "Failed to load delivery dashboard" });
     }
 });
+
 
 // ✅ Bills by specific date
 router.get("/by-date/:date", authenticate, async (req, res) => {
