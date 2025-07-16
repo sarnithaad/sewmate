@@ -4,14 +4,12 @@ import { useAuth } from "../context/AuthContext";
 
 // Placeholder data - replace with your actual data source if different
 const designTypes = [
-    { label: "Saree", value: "saree" },
     { label: "Blouse", value: "blouse" },
-    { label: "Lehenga", value: "lehenga" },
     { label: "Kurti", value: "kurti" },
     { label: "Other", value: "other" },
 ];
 
-const parts = ["body", "neck", "sleeve", "border", "back", "front"];
+const parts = [ "sleeve", "back", "front"];
 
 export default function Designs() {
     const [dressType, setDressType] = useState(designTypes[0].value);
